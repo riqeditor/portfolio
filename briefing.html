@@ -743,14 +743,19 @@
   const tc = n => '00:' + String(n).padStart(2, '0');
 
   // ═══════════════════════════════════════════════
-  // Rastreio anonimo do funil.
-  // Sai daqui SO o numero do passo e o tempo. Nenhuma resposta
-  // do briefing e enviada: nome, contato e orcamento vao apenas
-  // no e-mail do envio final.
+  // Rastreio do funil.
+  // Sai daqui o passo, o tempo e as respostas sobre o PROJETO
+  // (formato, quantidade, objetivo, pegada, material, prazo, faixa),
+  // pra dar pra entender por que a pessoa desistiu, nao so onde.
+  // Nome, WhatsApp e Instagram NUNCA saem daqui: esses vao apenas
+  // no e-mail, se a pessoa apertar "Enviar briefing".
   // ═══════════════════════════════════════════════
   const TRACK_URL = ''; // cole aqui a URL /exec do Apps Script
 
   const PASSOS = ['nome','formato','objetivo','pegada','material','prazo','orçamento','contato'];
+
+  // campos de projeto que o rastreio acompanha (o passo 08 fica de fora de proposito)
+  const CAMPOS = ['Formato','Quantidade','Objetivo','Tom','Material','Prazo','Faixa de orçamento'];
 
   const track = (function(){
     if (!TRACK_URL) return { passo(){}, voltou(){}, enviou(){} };
@@ -771,6 +776,15 @@
       desde = agora;
     }
 
+    function respostas(){
+      const r = {};
+      CAMPOS.forEach(function(nome){
+        const el = document.querySelector('[name="' + nome + '"]');
+        r[nome] = el ? String(el.value || '').slice(0, 500) : '';
+      });
+      return r;
+    }
+
     function corpo(){
       fechaTempo();
       return JSON.stringify({
@@ -781,6 +795,7 @@
         parouEm: enviado ? '' : String(atual + 1).padStart(2, '0') + ' ' + (PASSOS[atual] || ''),
         enviado: enviado,
         voltas: voltas,
+        respostas: respostas(),
         tempos: tempos.map(t => Math.round(t / 1000))
       });
     }

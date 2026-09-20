@@ -60,18 +60,48 @@
 
   :focus-visible{ outline: 2px solid var(--accent-soft); outline-offset: 3px; border-radius: 6px; }
 
-  .progress{
-    position: fixed; top: 0; left: 0; right: 0;
-    height: 3px; background: rgba(255,255,255,0.06); z-index: 10;
+  /* timeline de edicao: um clipe por pergunta */
+  .timeline{
+    display: flex; gap: 4px;
+    padding: 12px 20px 0;
   }
-  .progress .fill{
-    height: 100%; width: 0%;
-    background: var(--accent);
-    transition: width .35s ease;
+  .clip{
+    flex: 1;
+    position: relative;
+    background: none; border: none; margin: 0;
+    padding: 9px 0;
+    cursor: pointer;
+  }
+  .clip[disabled]{ cursor: default; }
+  .clip .bar{
+    display: block;
+    height: 6px; border-radius: 2px;
+    background: rgba(240,237,232,0.07);
+    border: 1px solid transparent;
+    transition: background .35s ease, border-color .35s ease;
+  }
+  .clip.is-done .bar{ background: var(--accent-dim); }
+  .clip.is-now .bar{ background: rgba(254,12,112,0.18); border-color: var(--accent); }
+  @media (hover: hover){
+    .clip:not([disabled]):hover .bar{ background: var(--accent); }
+  }
+  /* agulha */
+  .clip.is-now::before{
+    content: '';
+    position: absolute; left: -1px; top: 4px; bottom: 4px;
+    width: 2px; background: var(--accent);
+  }
+  .clip.is-now::after{
+    content: '';
+    position: absolute; left: -4px; top: 0;
+    width: 0; height: 0;
+    border-left: 4px solid transparent;
+    border-right: 4px solid transparent;
+    border-top: 5px solid var(--accent);
   }
 
   .topbar{
-    padding: 18px 20px;
+    padding: 10px 20px 18px;
     display: flex; justify-content: space-between; align-items: center;
   }
   .topbar a{ font-size: 0.8rem; color: var(--text-tertiary); text-decoration: none; display: flex; align-items: center; gap: 12px; transition: color .3s; }
@@ -439,7 +469,7 @@
 </head>
 <body>
 
-<div class="progress"><div class="fill" id="fill"></div></div>
+<div class="timeline" id="timeline" role="group" aria-label="Progresso do briefing"></div>
 
 <div class="topbar">
   <a href="index.html"><img src="logo.png" width="300" height="288" alt="RIQ"><span>← voltar ao site</span></a>
@@ -670,7 +700,7 @@
 (function(){
   const form = document.getElementById('form');
   const steps = [...form.querySelectorAll('.step')];
-  const fill = document.getElementById('fill');
+  const timeline = document.getElementById('timeline');
   const counter = document.getElementById('counter');
   const backBtn = document.getElementById('back');
   const nomeInput = document.getElementById('f-nome');
@@ -686,11 +716,32 @@
     5: 'Acima de R$6.000'
   };
 
+  // um clipe por pergunta; clicar num ja respondido volta pra ele
+  const clips = [];
+  for (let n = 0; n < totalPerguntas; n++){
+    const c = document.createElement('button');
+    c.type = 'button';
+    c.className = 'clip';
+    c.setAttribute('aria-label', 'Pergunta ' + (n + 1));
+    c.innerHTML = '<span class="bar"></span>';
+    c.addEventListener('click', () => { if (n < i){ i = n; render(); } });
+    timeline.appendChild(c);
+    clips.push(c);
+  }
+
+  const tc = n => '00:' + String(n).padStart(2, '0');
+
   function render(){
     steps.forEach((s, n) => s.classList.toggle('is-active', n === i));
     const isFinal = i === finalIdx;
-    fill.style.width = isFinal ? '100%' : (i / (totalPerguntas - 1) * 100) + '%';
-    counter.textContent = isFinal ? '' : (i + 1) + ' / ' + totalPerguntas;
+    clips.forEach((c, n) => {
+      c.classList.toggle('is-done', isFinal || n < i);
+      c.classList.toggle('is-now', !isFinal && n === i);
+      c.disabled = isFinal || n >= i;
+      if (!isFinal && n === i) c.setAttribute('aria-current', 'step');
+      else c.removeAttribute('aria-current');
+    });
+    counter.textContent = isFinal ? '' : tc(i + 1) + ' / ' + tc(totalPerguntas);
     backBtn.hidden = i === 0 || isFinal;
     if (isFinal) return;
     const input = steps[i].querySelector('input:not([type=hidden]):not([type=range]), textarea');

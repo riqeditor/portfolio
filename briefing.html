@@ -4,7 +4,7 @@
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>Briefing — RIQ</title>
-<meta name="description" content="Conte seu projeto de vídeo em 1 minuto e receba um orçamento.">
+<meta name="description" content="Oito perguntas rápidas sobre o seu projeto de vídeo. No fim, eu volto com um orçamento.">
 
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
@@ -172,8 +172,9 @@
     .fmt:hover{ border-color: var(--accent-soft); transform: translateY(-2px); }
   }
   .fmt.is-picked{ border-color: var(--accent); background: rgba(254,12,112,0.1); }
-  .fmt{ position: relative; }
-  .formats .fmt.is-picked::after{
+  .fmt, .tone{ position: relative; }
+  /* selo de marcado: vale pra qualquer grupo de multipla escolha */
+  [data-multi] > .is-picked::after{
     content: '';
     position: absolute; top: 7px; right: 7px;
     width: 14px; height: 14px; border-radius: 50%;
@@ -494,8 +495,8 @@
       <!-- 1 -->
       <div class="step is-active" data-required="1">
         <div class="q-num">01</div>
-        <h2>Opa! Como você se chama?</h2>
-        <p class="sub">Vamos começar fácil.</p>
+        <h2>Como você se chama?</h2>
+        <p class="sub">São oito perguntas rápidas sobre o seu projeto.</p>
         <input type="text" name="Nome" id="f-nome" placeholder="Seu nome" autocomplete="name">
         <div class="err"></div>
         <div class="actions">
@@ -507,8 +508,8 @@
       <!-- 2 -->
       <div class="step" data-required="1">
         <div class="q-num">02</div>
-        <h2>Prazer, <span data-name>tudo bem</span>! Qual o formato do vídeo?</h2>
-        <p class="sub">Pode marcar mais de um — se o vídeo é horizontal e você também quer os cortes, marca os dois.</p>
+        <h2><span data-name>Então</span>, qual o formato do vídeo?</h2>
+        <p class="sub">Marque mais de um se precisar: um vídeo horizontal que também vira cortes são dois formatos.</p>
         <input type="hidden" name="Formato">
         <div class="formats" data-multi>
           <button type="button" class="fmt" data-value="Vertical 9:16">
@@ -528,8 +529,8 @@
           </button>
           <button type="button" class="fmt" data-exclusive data-value="Não sei ainda">
             <span class="shape q">?</span>
-            <span class="name">Não sei</span>
-            <span class="where">me ajuda</span>
+            <span class="name">Ainda não sei</span>
+            <span class="where">decidimos juntos</span>
           </button>
         </div>
         <div class="sub-q">Quantos vídeos?</div>
@@ -567,7 +568,7 @@
       <div class="step" data-required="1">
         <div class="q-num">03</div>
         <h2>O que esse vídeo precisa fazer por você?</h2>
-        <p class="sub">Pode escrever do seu jeito, sem formalidade.</p>
+        <p class="sub">O que muda na sua vida ou no seu negócio se ele der certo?</p>
         <textarea name="Objetivo" placeholder="Ex: quero apresentar meu produto, crescer no Instagram, registrar um evento..."></textarea>
         <div class="err"></div>
         <div class="actions">
@@ -579,31 +580,35 @@
       <div class="step" data-required="1">
         <div class="q-num">04</div>
         <h2>Que pegada você imagina?</h2>
-        <p class="sub">Isso me diz mais sobre o ritmo da edição que qualquer descrição.</p>
+        <p class="sub">Marque quantas combinarem — um vídeo pode ser rápido e divertido ao mesmo tempo.</p>
         <input type="hidden" name="Tom">
-        <div class="tones">
+        <div class="tones" data-multi>
           <button type="button" class="tone t-fast" data-value="Energético">
             <span class="viz"><i style="height:16px"></i><i style="height:26px"></i><i style="height:10px"></i><i style="height:22px"></i><i style="height:14px"></i><i style="height:24px"></i><i style="height:12px"></i></span>
             <span class="name">Energético</span>
-            <span class="desc">Cortes rápidos, muita informação</span>
+            <span class="desc">Corte rápido, zoom, legenda — prende nos primeiros segundos</span>
           </button>
           <button type="button" class="tone t-clean" data-value="Limpo e direto">
             <span class="viz"><i style="height:18px"></i><i style="height:18px"></i><i style="height:18px"></i></span>
             <span class="name">Limpo e direto</span>
-            <span class="desc">Profissional, sem firula</span>
+            <span class="desc">Sem efeito, a mensagem no centro</span>
           </button>
           <button type="button" class="tone t-cine" data-value="Cinematográfico">
             <span class="viz"><i></i></span>
             <span class="name">Cinematográfico</span>
-            <span class="desc">Mais lento, com atmosfera</span>
+            <span class="desc">Cor tratada, trilha, respiro entre as cenas</span>
           </button>
           <button type="button" class="tone t-fun" data-value="Divertido">
             <span class="viz"><i style="height:10px"></i><i style="height:24px"></i><i style="height:6px"></i><i style="height:18px"></i><i style="height:26px"></i></span>
             <span class="name">Divertido</span>
-            <span class="desc">Humor, leveza, meme</span>
+            <span class="desc">Humor, meme, linguagem de trend</span>
           </button>
         </div>
         <div class="err"></div>
+        <div class="actions">
+          <button type="button" class="btn" data-next>Continuar</button>
+          <span class="enter-hint">ou aperte Enter ↵</span>
+        </div>
       </div>
 
       <!-- 5 -->
@@ -612,10 +617,10 @@
         <h2>Você já tem o material gravado?</h2>
         <input type="hidden" name="Material">
         <div class="choices">
-          <button type="button" class="choice" data-value="Já tem o bruto — só edição"><span class="key">A</span> Já tenho o bruto, é só editar</button>
+          <button type="button" class="choice" data-value="Já tem o material — só edição"><span class="key">A</span> Já tenho o material, é só editar</button>
           <button type="button" class="choice" data-value="Captação + edição"><span class="key">B</span> Preciso de captação e edição</button>
           <button type="button" class="choice" data-value="Só captação — já tem editor"><span class="key">C</span> Quero só captação, já tenho editor</button>
-          <button type="button" class="choice" data-value="Quer conversar sobre a ideia"><span class="key">D</span> Quero falar sobre minha ideia</button>
+          <button type="button" class="choice" data-value="Só a ideia — quer conversar"><span class="key">D</span> Tenho só a ideia, quero conversar</button>
         </div>
         <div class="err"></div>
       </div>
@@ -624,7 +629,7 @@
       <div class="step" data-required="1" data-datestep>
         <div class="q-num">06</div>
         <h2>Tem uma data em mente?</h2>
-        <p class="sub">Se já sabe o dia, me fala — assim eu já vejo na agenda.</p>
+        <p class="sub">Se já tem uma data, eu confiro a agenda antes de responder.</p>
         <input type="date" name="Prazo" id="f-prazo">
         <div class="err"></div>
         <div class="actions">
@@ -636,9 +641,9 @@
       <!-- 7 -->
       <div class="step" data-required="1" data-sliderstep>
         <div class="q-num">07</div>
-        <h2>Qual faixa de investimento você tem em mente?</h2>
-        <p class="sub">Assim eu já proponho a melhor solução dentro do que dá.</p>
-        <div class="slider-value untouched" id="sliderLabel">arraste pra escolher</div>
+        <h2>Que faixa de investimento você tem em mente?</h2>
+        <p class="sub">Com a faixa em mãos, eu proponho o escopo que cabe nela.</p>
+        <div class="slider-value untouched" id="sliderLabel">arraste para escolher</div>
         <input type="range" id="slider" min="1" max="5" step="1" value="3">
         <div class="ticks"><i></i><i></i><i></i><i></i><i></i></div>
         <div class="slider-ends"><span>menor</span><span>maior</span></div>
@@ -653,7 +658,7 @@
       <!-- 8 -->
       <div class="step" data-required="1">
         <div class="q-num">08</div>
-        <h2>Fechou, <span data-name>então</span>! Onde eu te respondo?</h2>
+        <h2>Onde eu te respondo, <span data-name>então</span>?</h2>
         <p class="sub">Te retorno com o orçamento por aqui.</p>
         <input type="tel" name="WhatsApp" placeholder="(11) 90000-0000" autocomplete="tel">
         <div style="margin-top:22px">
@@ -672,18 +677,18 @@
           <svg viewBox="0 0 24 24"><path d="M4 12.5l5.5 5.5L20 7"/></svg>
         </div>
         <h2 style="text-align:center">Briefing recebido, <span data-name>valeu</span>!</h2>
-        <p class="sub" style="text-align:center">Já caiu aqui. Vou dar uma olhada com calma e te retorno com um orçamento certo — sem chute.</p>
+        <p class="sub" style="text-align:center">Chegou aqui. Vou analisar com calma e voltar com um orçamento fechado, não com um chute.</p>
 
         <div class="next">
           <h3>O que acontece agora</h3>
           <ol>
             <li>Eu leio seu briefing e dou uma olhada no seu conteúdo.</li>
             <li>Te chamo no <b>WhatsApp</b> que você deixou, normalmente em <b>até 1 dia útil</b>.</li>
-            <li>A gente alinha os detalhes e eu te mando o orçamento.</li>
+            <li>Alinhamos os detalhes e eu te envio o orçamento.</li>
           </ol>
         </div>
 
-        <p style="text-align:center;font-size:0.8rem;color:var(--text-tertiary);margin:0 0 12px">Enquanto isso, dá uma passada por aqui:</p>
+        <p style="text-align:center;font-size:0.8rem;color:var(--text-tertiary);margin:0 0 12px">Enquanto isso, você pode ver mais por aqui:</p>
         <div class="final-links">
           <a class="link-btn" href="https://riqeditor.github.io/portfolio" target="_blank" rel="noopener">
             <svg viewBox="0 0 24 24" fill="none" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="3" width="18" height="18" rx="2"/><path d="M3 9h18M9 21V9"/></svg>
@@ -763,16 +768,16 @@
     if (step.dataset.required !== '1') return true;
     const ocultos = [...step.querySelectorAll('input[type=hidden]:not([name^="_"])')];
     if (ocultos.length && !step.hasAttribute('data-sliderstep')){
-      if (ocultos.some(h => !h.value)){ setErr(step, 'Escolhe uma opção em cada item pra continuar.'); return false; }
+      if (ocultos.some(h => !h.value)){ setErr(step, 'Escolha uma opção em cada item para continuar.'); return false; }
       return true;
     }
     if (step.hasAttribute('data-sliderstep')){
       const h = ocultos[0];
-      if (!h.value){ setErr(step, 'Escolhe uma faixa ou clique em "prefiro conversar antes".'); return false; }
+      if (!h.value){ setErr(step, 'Escolha uma faixa ou clique em "prefiro conversar antes".'); return false; }
       return true;
     }
     const input = step.querySelector('input:not([type=hidden]), textarea');
-    if (input && !input.value.trim()){ setErr(step, 'Preenche esse campo pra continuar.'); return false; }
+    if (input && !input.value.trim()){ setErr(step, 'Preencha esse campo para continuar.'); return false; }
     setErr(step, '');
     return true;
   }
@@ -891,7 +896,7 @@
       if (multi){
         // "não sei" e as opções concretas se excluem
         if (pick.hasAttribute('data-exclusive')){
-          grupo.querySelectorAll('.fmt').forEach(c => c.classList.remove('is-picked'));
+          grupo.querySelectorAll('.choice, .fmt, .tone').forEach(c => c.classList.remove('is-picked'));
           pick.classList.add('is-picked');
         } else {
           grupo.querySelectorAll('[data-exclusive]').forEach(c => c.classList.remove('is-picked'));

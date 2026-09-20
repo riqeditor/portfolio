@@ -735,12 +735,77 @@
     c.className = 'clip';
     c.setAttribute('aria-label', 'Pergunta ' + (n + 1));
     c.innerHTML = '<span class="bar"></span>';
-    c.addEventListener('click', () => { if (n < i){ i = n; render(); } });
+    c.addEventListener('click', () => { if (n < i){ i = n; track.voltou(); render(); } });
     timeline.appendChild(c);
     clips.push(c);
   }
 
   const tc = n => '00:' + String(n).padStart(2, '0');
+
+  // ═══════════════════════════════════════════════
+  // Rastreio anonimo do funil.
+  // Sai daqui SO o numero do passo e o tempo. Nenhuma resposta
+  // do briefing e enviada: nome, contato e orcamento vao apenas
+  // no e-mail do envio final.
+  // ═══════════════════════════════════════════════
+  const TRACK_URL = ''; // cole aqui a URL /exec do Apps Script
+
+  const PASSOS = ['nome','formato','objetivo','pegada','material','prazo','orçamento','contato'];
+
+  const track = (function(){
+    if (!TRACK_URL) return { passo(){}, voltou(){}, enviou(){} };
+
+    const novoId = () => Math.random().toString(36).slice(2) + Date.now().toString(36);
+    let sid;
+    try{
+      sid = sessionStorage.getItem('sid') || novoId();
+      sessionStorage.setItem('sid', sid);
+    }catch(e){ sid = novoId(); }
+
+    const tempos = new Array(PASSOS.length).fill(0);
+    let atual = 0, desde = Date.now(), maxPasso = 1, voltas = 0, enviado = false;
+
+    function fechaTempo(){
+      const agora = Date.now();
+      if (atual >= 0 && atual < tempos.length) tempos[atual] += agora - desde;
+      desde = agora;
+    }
+
+    function corpo(){
+      fechaTempo();
+      return JSON.stringify({
+        sid: sid,
+        dispositivo: matchMedia('(hover: none)').matches ? 'celular' : 'computador',
+        origem: (document.referrer || '').split('/')[2] || 'direto',
+        maxPasso: maxPasso,
+        parouEm: enviado ? '' : String(atual + 1).padStart(2, '0') + ' ' + (PASSOS[atual] || ''),
+        enviado: enviado,
+        voltas: voltas,
+        tempos: tempos.map(t => Math.round(t / 1000))
+      });
+    }
+
+    function envia(){
+      const dados = corpo();
+      try{
+        if (navigator.sendBeacon){
+          navigator.sendBeacon(TRACK_URL, new Blob([dados], { type: 'text/plain;charset=UTF-8' }));
+          return;
+        }
+      }catch(e){}
+      try{ fetch(TRACK_URL, { method: 'POST', body: dados, mode: 'no-cors', keepalive: true }); }catch(e){}
+    }
+
+    // o navegador so garante esse ultimo envio no pagehide/visibilitychange
+    addEventListener('pagehide', envia);
+    document.addEventListener('visibilitychange', () => { if (document.visibilityState === 'hidden') envia(); });
+
+    return {
+      passo(n){ fechaTempo(); atual = n; maxPasso = Math.max(maxPasso, n + 1); },
+      voltou(){ voltas++; },
+      enviou(){ enviado = true; envia(); }
+    };
+  })();
 
   function render(){
     steps.forEach((s, n) => s.classList.toggle('is-active', n === i));
@@ -754,6 +819,7 @@
     });
     counter.textContent = isFinal ? '' : tc(i + 1) + ' / ' + tc(totalPerguntas);
     backBtn.hidden = i === 0 || isFinal;
+    if (!isFinal) track.passo(i);
     if (isFinal) return;
     const input = steps[i].querySelector('input:not([type=hidden]):not([type=range]), textarea');
     if (input && window.matchMedia('(hover: hover)').matches) setTimeout(() => input.focus(), 120);
@@ -786,7 +852,7 @@
     if (!valid(steps[i])) return;
     if (i < totalPerguntas - 1){ i++; render(); }
   }
-  function prev(){ if (i > 0){ i--; render(); } }
+  function prev(){ if (i > 0){ i--; track.voltou(); render(); } }
 
   function applyName(){
     const n = (nomeInput.value || '').trim().split(' ')[0];
@@ -875,6 +941,7 @@
         body: dados.toString()
       });
       if (!res.ok) throw new Error('HTTP ' + res.status);
+      track.enviou();
       applyName();
       i = finalIdx;
       render();
@@ -964,6 +1031,7 @@
   if (location.search.indexOf('enviado=1') > -1){
     i = finalIdx;
     render();
+    track.enviou();
   } else {
     render();
   }

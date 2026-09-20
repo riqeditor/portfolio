@@ -138,7 +138,9 @@
     font-family: var(--font-body);
     transition: border-color .2s, transform .2s, background .2s;
   }
-  .fmt:hover{ border-color: var(--accent-soft); transform: translateY(-2px); }
+  @media (hover: hover){
+    .fmt:hover{ border-color: var(--accent-soft); transform: translateY(-2px); }
+  }
   .fmt.is-picked{ border-color: var(--accent); background: rgba(254,12,112,0.1); }
   .fmt{ position: relative; }
   .formats .fmt.is-picked::after{
@@ -177,7 +179,9 @@
     font-family: var(--font-body);
     transition: border-color .2s, background .2s;
   }
-  .tone:hover{ border-color: var(--accent-soft); }
+  @media (hover: hover){
+    .tone:hover{ border-color: var(--accent-soft); }
+  }
   .tone.is-picked{ border-color: var(--accent); background: rgba(254,12,112,0.1); }
   .tone .viz{ display: flex; align-items: flex-end; gap: 3px; height: 26px; margin-bottom: 10px; }
   .tone .viz i{
@@ -214,9 +218,17 @@
   .t-fun .viz i:nth-child(4){ animation-delay: .25s; }
   .t-fun .viz i:nth-child(5){ animation-delay: .1s; }
 
-  .tone:hover .viz i, .tone.is-picked .viz i{ animation-duration: .4s; }
-  .t-clean:hover .viz i, .t-clean.is-picked .viz i{ animation-duration: 1.6s; }
-  .t-cine:hover .viz i, .t-cine.is-picked .viz i{ animation-duration: 2.2s; }
+  /* acelerar no hover/selecao so faz sentido com mouse; no toque isso salta */
+  @media (hover: hover){
+    .tone:hover .viz i, .tone.is-picked .viz i{ animation-duration: .4s; }
+    .t-clean:hover .viz i, .t-clean.is-picked .viz i{ animation-duration: 1.6s; }
+    .t-cine:hover .viz i, .t-cine.is-picked .viz i{ animation-duration: 2.2s; }
+  }
+  /* no celular quatro animacoes em loop tremem: fica parado e so o escolhido anda */
+  @media (hover: none){
+    .tone .viz i{ animation-play-state: paused; }
+    .tone.is-picked .viz i{ animation-play-state: running; }
+  }
   /* energético: muitos cortes curtos */
   .t-fast .viz i{ width: 4px; }
   /* limpo: poucos blocos largos e iguais */
@@ -417,7 +429,9 @@
     font-size: 0.85rem; font-weight: 500;
     transition: border-color .2s, transform .2s;
   }
-  .link-btn:hover{ border-color: var(--accent-soft); transform: translateY(-2px); }
+  @media (hover: hover){
+    .link-btn:hover{ border-color: var(--accent-soft); transform: translateY(-2px); }
+  }
   .link-btn svg{ width: 16px; height: 16px; stroke: var(--accent-soft); flex-shrink: 0; }
 
   .btn[disabled]{ opacity: .6; cursor: default; box-shadow: none; }
@@ -498,7 +512,7 @@
           <button type="button" class="fmt" data-value="4 a 6 vídeos">
             <span class="qty-num">4–6</span>
             <span class="name">vídeos</span>
-            <span class="where">campanha</span>
+            <span class="where">~1 por semana</span>
           </button>
           <button type="button" class="fmt" data-value="Pacote recorrente">
             <span class="qty-num"><svg viewBox="0 0 24 24" stroke-linecap="round" stroke-linejoin="round"><path d="M17 2l4 4-4 4"/><path d="M3 11V9a4 4 0 0 1 4-4h14"/><path d="M7 22l-4-4 4-4"/><path d="M21 13v2a4 4 0 0 1-4 4H3"/></svg></span>

@@ -219,6 +219,9 @@
     background: var(--text-tertiary);
     border-radius: 2px;
     transform-origin: bottom;
+    /* camada propria: a animacao roda na GPU em vez de repintar a cada quadro */
+    will-change: transform;
+    backface-visibility: hidden;
   }
   .tone.is-picked .viz i{ background: var(--accent-soft); }
 
@@ -254,10 +257,13 @@
     .t-clean:hover .viz i, .t-clean.is-picked .viz i{ animation-duration: 1.6s; }
     .t-cine:hover .viz i, .t-cine.is-picked .viz i{ animation-duration: 2.2s; }
   }
-  /* no celular quatro animacoes em loop tremem: fica parado e so o escolhido anda */
+  /* em tela pequena o beat rapido le como flicker: mesmo ritmo, passo mais longo.
+     a velocidade nunca muda depois de carregar, que era o que parecia bug. */
   @media (hover: none){
-    .tone .viz i{ animation-play-state: paused; }
-    .tone.is-picked .viz i{ animation-play-state: running; }
+    .t-fast .viz i{ animation-duration: .9s; }
+    .t-clean .viz i{ animation-duration: 3.2s; }
+    .t-cine .viz i{ animation-duration: 4.2s; }
+    .t-fun .viz i{ animation-duration: 1.5s; }
   }
   /* energético: muitos cortes curtos */
   .t-fast .viz i{ width: 4px; }
@@ -577,12 +583,12 @@
         <input type="hidden" name="Tom">
         <div class="tones">
           <button type="button" class="tone t-fast" data-value="Energético">
-            <span class="viz"><i style="height:60%"></i><i style="height:100%"></i><i style="height:40%"></i><i style="height:85%"></i><i style="height:55%"></i><i style="height:95%"></i><i style="height:45%"></i></span>
+            <span class="viz"><i style="height:16px"></i><i style="height:26px"></i><i style="height:10px"></i><i style="height:22px"></i><i style="height:14px"></i><i style="height:24px"></i><i style="height:12px"></i></span>
             <span class="name">Energético</span>
             <span class="desc">Cortes rápidos, muita informação</span>
           </button>
           <button type="button" class="tone t-clean" data-value="Limpo e direto">
-            <span class="viz"><i style="height:70%"></i><i style="height:70%"></i><i style="height:70%"></i></span>
+            <span class="viz"><i style="height:18px"></i><i style="height:18px"></i><i style="height:18px"></i></span>
             <span class="name">Limpo e direto</span>
             <span class="desc">Profissional, sem firula</span>
           </button>
@@ -592,7 +598,7 @@
             <span class="desc">Mais lento, com atmosfera</span>
           </button>
           <button type="button" class="tone t-fun" data-value="Divertido">
-            <span class="viz"><i style="height:40%"></i><i style="height:95%"></i><i style="height:25%"></i><i style="height:70%"></i><i style="height:100%"></i></span>
+            <span class="viz"><i style="height:10px"></i><i style="height:24px"></i><i style="height:6px"></i><i style="height:18px"></i><i style="height:26px"></i></span>
             <span class="name">Divertido</span>
             <span class="desc">Humor, leveza, meme</span>
           </button>

@@ -478,6 +478,19 @@
     color: rgba(254,12,112,0.1);
     letter-spacing: -0.02em;
   }
+  .about-photo { display: none; }
+  @media (min-width: 769px) {
+    .about-photo { display: block; position: absolute; inset: 0; z-index: 0; }
+    .about-photo img {
+      display: block;
+      width: 100%; height: 100%;
+      object-fit: cover;
+      opacity: 0.9;
+      transition: opacity 0.6s ease, transform 0.8s ease;
+    }
+    .about-img-frame:hover .about-photo img { opacity: 1; transform: scale(1.03); }
+    .about-initials { display: none; }
+  }
   .about-tag { margin-bottom: 20px; }
   .about-text {
     font-size: 16px;
@@ -889,6 +902,10 @@
     </div>
     <div class="about-visual">
       <div class="about-img-frame">
+        <picture class="about-photo">
+          <source srcset="foto.webp" type="image/webp"/>
+          <img src="foto.jpg" width="977" height="1303" loading="lazy" decoding="async" alt="Henrique Leite"/>
+        </picture>
         <div class="about-initials">HL</div>
       </div>
       <div class="about-accent"></div>

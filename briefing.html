@@ -140,6 +140,15 @@
   }
   .fmt:hover{ border-color: var(--accent-soft); transform: translateY(-2px); }
   .fmt.is-picked{ border-color: var(--accent); background: rgba(254,12,112,0.1); }
+  .fmt{ position: relative; }
+  .formats .fmt.is-picked::after{
+    content: '';
+    position: absolute; top: 7px; right: 7px;
+    width: 14px; height: 14px; border-radius: 50%;
+    background: var(--accent);
+    background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='%23fff' stroke-width='4' stroke-linecap='round' stroke-linejoin='round'%3E%3Cpath d='M4 12.5l5.5 5.5L20 7'/%3E%3C/svg%3E");
+    background-size: 10px 10px; background-position: center; background-repeat: no-repeat;
+  }
   .fmt .shape{
     display: block;
     background: var(--border-soft);
@@ -334,23 +343,31 @@
 
   .hp{ position: absolute; left: -9999px; opacity: 0; }
 
-  .pills-label{ font-size: 0.82rem; color: var(--text-soft); margin: 20px 0 10px; }
-  .pills{ display: flex; gap: 8px; flex-wrap: wrap; }
-  .pill{
-    flex: 1; min-width: 74px;
-    background: var(--bg-card);
-    border: 1px solid var(--border-soft);
-    border-radius: 100px;
-    padding: 12px 10px;
+  .sub-q{
+    font-family: var(--font-display);
+    font-size: 1.15rem;
+    letter-spacing: 0.06em;
     color: var(--text);
-    font-family: var(--font-body);
-    font-size: 0.86rem;
-    cursor: pointer;
-    min-height: 44px;
-    transition: border-color .2s, background .2s;
+    margin: 26px 0 10px;
   }
-  .pill:hover{ border-color: var(--accent-soft); }
-  .pill.is-picked{ border-color: var(--accent); background: rgba(254,12,112,0.1); }
+  .qtys{ display: grid; grid-template-columns: repeat(4, 1fr); gap: 10px; }
+  @media (max-width: 520px){ .qtys{ grid-template-columns: repeat(2, 1fr); } }
+  .qty-num{
+    display: block;
+    font-family: var(--font-display);
+    font-size: 2.1rem; line-height: 1;
+    letter-spacing: 0.02em;
+    color: var(--text-soft);
+    margin-bottom: 4px;
+    transition: color .2s;
+  }
+  .fmt:hover .qty-num{ color: var(--text); }
+  .fmt.is-picked .qty-num{ color: var(--accent); }
+  .qty-num svg{
+    width: 28px; height: 28px; display: block; margin: 3px auto 4px;
+    fill: none; stroke: currentColor; stroke-width: 2;
+  }
+  .hint{ font-size: 0.72rem; color: var(--text-tertiary); margin-top: 10px; }
 
   /* ---- tela final ---- */
   .check{
@@ -441,9 +458,9 @@
       <div class="step" data-required="1">
         <div class="q-num">02</div>
         <h2>Prazer, <span data-name>tudo bem</span>! Qual o formato do vídeo?</h2>
-        <p class="sub">Toca no formato mais parecido com o que você precisa.</p>
+        <p class="sub">Pode marcar mais de um — se o vídeo é horizontal e você também quer os cortes, marca os dois.</p>
         <input type="hidden" name="Formato">
-        <div class="formats">
+        <div class="formats" data-multi>
           <button type="button" class="fmt" data-value="Vertical 9:16">
             <span class="shape v"></span>
             <span class="name">Vertical</span>
@@ -459,21 +476,41 @@
             <span class="name">Quadrado</span>
             <span class="where">Feed</span>
           </button>
-          <button type="button" class="fmt" data-value="Não sei ainda">
+          <button type="button" class="fmt" data-exclusive data-value="Não sei ainda">
             <span class="shape q">?</span>
             <span class="name">Não sei</span>
             <span class="where">me ajuda</span>
           </button>
         </div>
-        <div class="pills-label">Quantos vídeos?</div>
+        <div class="sub-q">Quantos vídeos?</div>
         <input type="hidden" name="Quantidade">
-        <div class="pills">
-          <button type="button" class="pill" data-value="1 vídeo">1</button>
-          <button type="button" class="pill" data-value="2 a 3 vídeos">2 a 3</button>
-          <button type="button" class="pill" data-value="4 a 6 vídeos">4 a 6</button>
-          <button type="button" class="pill" data-value="Pacote recorrente">Recorrente</button>
+        <div class="qtys">
+          <button type="button" class="fmt" data-value="1 vídeo">
+            <span class="qty-num">1</span>
+            <span class="name">vídeo</span>
+            <span class="where">pontual</span>
+          </button>
+          <button type="button" class="fmt" data-value="2 a 3 vídeos">
+            <span class="qty-num">2–3</span>
+            <span class="name">vídeos</span>
+            <span class="where">projeto curto</span>
+          </button>
+          <button type="button" class="fmt" data-value="4 a 6 vídeos">
+            <span class="qty-num">4–6</span>
+            <span class="name">vídeos</span>
+            <span class="where">campanha</span>
+          </button>
+          <button type="button" class="fmt" data-value="Pacote recorrente">
+            <span class="qty-num"><svg viewBox="0 0 24 24" stroke-linecap="round" stroke-linejoin="round"><path d="M17 2l4 4-4 4"/><path d="M3 11V9a4 4 0 0 1 4-4h14"/><path d="M7 22l-4-4 4-4"/><path d="M21 13v2a4 4 0 0 1-4 4H3"/></svg></span>
+            <span class="name">Recorrente</span>
+            <span class="where">todo mês</span>
+          </button>
         </div>
         <div class="err"></div>
+        <div class="actions">
+          <button type="button" class="btn" data-next>Continuar</button>
+          <span class="enter-hint">ou aperte Enter ↵</span>
+        </div>
       </div>
 
       <!-- 3 -->
@@ -774,20 +811,41 @@
   }
 
   form.addEventListener('click', (e) => {
-    const pick = e.target.closest('.choice, .fmt, .tone, .pill');
+    const pick = e.target.closest('.choice, .fmt, .tone');
     if (pick){
       const step = pick.closest('.step');
       const grupo = pick.parentElement;
-      grupo.querySelectorAll('.choice, .fmt, .tone, .pill').forEach(c => c.classList.remove('is-picked'));
-      pick.classList.add('is-picked');
+      const multi = grupo.hasAttribute('data-multi');
+
+      if (multi){
+        // "não sei" e as opções concretas se excluem
+        if (pick.hasAttribute('data-exclusive')){
+          grupo.querySelectorAll('.fmt').forEach(c => c.classList.remove('is-picked'));
+          pick.classList.add('is-picked');
+        } else {
+          grupo.querySelectorAll('[data-exclusive]').forEach(c => c.classList.remove('is-picked'));
+          pick.classList.toggle('is-picked');
+        }
+      } else {
+        grupo.querySelectorAll('.choice, .fmt, .tone').forEach(c => c.classList.remove('is-picked'));
+        pick.classList.add('is-picked');
+      }
+
       // cada grupo escreve no campo oculto que vem logo antes dele
       let alvo = grupo.previousElementSibling;
       while (alvo && !(alvo.tagName === 'INPUT' && alvo.type === 'hidden')) alvo = alvo.previousElementSibling;
-      if (alvo) alvo.value = pick.dataset.value;
+      if (alvo){
+        alvo.value = multi
+          ? [...grupo.querySelectorAll('.is-picked')].map(c => c.dataset.value).join(', ')
+          : pick.dataset.value;
+      }
       setErr(step, '');
       if (i === 1) applyName();
-      const pendentes = [...step.querySelectorAll('input[type=hidden]:not([name^="_"])')].filter(h => !h.value);
-      if (!pendentes.length) setTimeout(next, 260);
+      // passo com múltipla escolha espera o "Continuar", senão pula sozinho
+      if (!step.querySelector('[data-multi]')){
+        const pendentes = [...step.querySelectorAll('input[type=hidden]:not([name^="_"])')].filter(h => !h.value);
+        if (!pendentes.length) setTimeout(next, 260);
+      }
       return;
     }
     if (e.target.closest('[data-nodate]')){

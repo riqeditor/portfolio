@@ -227,10 +227,10 @@
   .tone.is-picked .viz i{ background: var(--accent-soft); }
 
   /* cada pegada anima no próprio ritmo */
-  @keyframes beat{ 0%,100%{ transform: scaleY(1); } 50%{ transform: scaleY(.5); } }
+  .tone .viz i{ border-radius: 0; } @keyframes beat{ 0%,100%{ transform: scaleY(1); } 50%{ transform: scaleY(.5); } }
   @keyframes drift{ 0%,100%{ transform: scaleY(1); } 50%{ transform: scaleY(.85); } }
   @keyframes wide{ 0%,100%{ opacity: .5; transform: scaleX(1); } 50%{ opacity: 1; transform: scaleX(.94); } }
-  @keyframes bounce{ 0%,100%{ transform: scaleY(1); } 40%{ transform: scaleY(.3); } 60%{ transform: scaleY(1.15); } }
+  @keyframes bounce{ 0%,100%{ transform: scaleY(1); } 40%{ transform: scaleY(.55); } 60%{ transform: scaleY(1.06); } }
 
   .t-fast .viz i{ animation: beat .75s ease-in-out infinite; }
   .t-fast .viz i:nth-child(2){ animation-delay: .08s; }
@@ -644,8 +644,8 @@
         <h2>Que faixa de investimento você tem em mente?</h2>
         <p class="sub">Assim eu já proponho a melhor solução possível.</p>
         <div class="slider-value untouched" id="sliderLabel">arraste para escolher</div>
-        <input type="range" id="slider" min="1" max="5" step="1" value="3">
-        <div class="ticks"><i></i><i></i><i></i><i></i><i></i></div>
+        <input type="range" id="slider" min="1" max="6" step="1" value="3">
+        <div class="ticks"><i></i><i></i><i></i><i></i><i></i><i></i></div>
         <div class="slider-ends"><span>menor</span><span>maior</span></div>
         <input type="hidden" name="Faixa de orçamento">
         <div class="err"></div>
@@ -720,11 +720,11 @@
   let i = 0;
 
   const BUDGETS = {
-    1: 'Até R$500',
-    2: 'R$500 a R$1.500',
-    3: 'R$1.500 a R$3.000',
-    4: 'R$3.000 a R$6.000',
-    5: 'Acima de R$6.000'
+    1: 'Até R$250',
+    2: 'R$250 a R$600',
+    3: 'R$600 a R$1.500',
+    4: 'R$1.500 a R$3.000',
+    5: 'R$3.000 a R$6.000', 6: 'Mais de R$6.000'
   };
 
   // um clipe por pergunta; clicar num ja respondido volta pra ele

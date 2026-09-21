@@ -72,6 +72,9 @@
   nav.scrolled::before { opacity: 0; }
   .nav-logo { display: flex; align-items: center; position: relative; }
   .nav-logo img { height: 36px; width: auto; display: block; }
+  .nav-cta { font-family: var(--font-display); font-size: 14px; letter-spacing: 0.1em; color: var(--white); background: var(--red); text-decoration: none; padding: 7px 16px; border-radius: 100px; line-height: 1; display: inline-flex; align-items: center; transition: background 0.3s ease, transform 0.3s ease; }
+  .nav-cta:hover { background: #ff3d87; transform: translateY(-1px); }
+  @media (max-width: 640px) { nav { padding: 18px 20px; } .nav-links { gap: 16px; align-items: center; } .nav-links a { font-size: 10px; letter-spacing: 0.1em; } .nav-cta { font-size: 12px; padding: 6px 12px; } }
   .nav-links { display: flex; gap: 40px; position: relative; }
   .nav-links a {
     font-size: 12px;
@@ -789,6 +792,7 @@
     <a href="#portfolio">Portfólio</a>
     <a href="#sobre">Sobre</a>
     <a href="#contato">Contato</a>
+    <a class="nav-cta" href="briefing.html">Briefing</a>
   </div>
 </nav>
 

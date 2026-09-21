@@ -1,0 +1,384 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<meta name="robots" content="noindex">
+<title>Gerador de proposta — RIQ (uso interno)</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@500;700&family=Inter:wght@400;500;600&display=swap" rel="stylesheet">
+<style>
+  :root{
+    --bg:#0a0812; --bg-card:#140f20; --bg-input:#0e0a18;
+    --text:#f5f3fa; --text-soft:#b0a8c8; --text-tertiary:#6f6590;
+    --accent:#FE0C70; --accent-soft:#ff5c9d;
+    --border-soft:rgba(254,12,112,0.22);
+    --paper:#ffffff; --ink:#15121c; --ink-soft:#5d5870; --rule:#e6e1ee;
+    --font-display:'Space Grotesk',sans-serif; --font-body:'Inter',sans-serif;
+  }
+  *{box-sizing:border-box}
+  body{
+    margin:0; background:radial-gradient(circle at 20% -10%,#1b0f27 0%,var(--bg) 45%),var(--bg);
+    color:var(--text); font-family:var(--font-body); line-height:1.5;
+    -webkit-font-smoothing:antialiased;
+  }
+  .shell{display:grid; grid-template-columns:minmax(320px,420px) 1fr; gap:28px; padding:28px 24px 72px; max-width:1400px; margin:0 auto}
+  @media (max-width:980px){ .shell{grid-template-columns:1fr} }
+
+  /* ---------- editor ---------- */
+  .editor h1{font-family:var(--font-display); font-size:1.35rem; margin:0 0 4px}
+  .tag{display:inline-block; font-size:.66rem; font-weight:600; letter-spacing:.06em; text-transform:uppercase;
+       background:rgba(254,12,112,.15); color:var(--accent-soft); padding:4px 10px; border-radius:100px; margin-bottom:10px}
+  .editor .lead{color:var(--text-soft); font-size:.85rem; margin:0 0 20px}
+  .card{background:var(--bg-card); border:1px solid var(--border-soft); border-radius:16px; padding:18px; margin-bottom:16px}
+  .card h2{font-family:var(--font-display); font-size:.72rem; text-transform:uppercase; letter-spacing:.08em;
+           color:var(--accent-soft); margin:0 0 12px}
+  label{display:block; font-size:.78rem; font-weight:500; margin:0 0 4px}
+  .hint{font-size:.7rem; color:var(--text-tertiary); font-weight:400}
+  input,textarea,select{
+    width:100%; background:var(--bg-input); border:1px solid var(--border-soft); border-radius:9px;
+    padding:9px 11px; color:var(--text); font-family:var(--font-body); font-size:.9rem; margin-bottom:11px;
+  }
+  textarea{resize:vertical; min-height:72px; line-height:1.45}
+  input:focus,textarea:focus,select:focus{outline:none; border-color:var(--accent)}
+  .row2{display:grid; grid-template-columns:1fr 1fr; gap:10px}
+  .btn{
+    width:100%; background:var(--accent); color:#fff; border:0; border-radius:100px;
+    padding:12px 18px; font-family:var(--font-display); font-weight:700; font-size:.9rem; cursor:pointer;
+  }
+  .btn.ghost{background:transparent; color:var(--accent-soft); border:1px solid var(--border-soft)}
+  .btn+.btn{margin-top:9px}
+  .nota{font-size:.72rem; color:var(--text-tertiary); line-height:1.6; margin-top:14px}
+  .ok{color:#4ade80; font-size:.75rem; min-height:1.2em; margin-top:6px}
+
+  /* ---------- papel ---------- */
+  .paper-wrap{display:flex; justify-content:center}
+  .paper{
+    background:var(--paper); color:var(--ink); width:100%; max-width:780px;
+    border-radius:6px; padding:56px 56px 48px; font-size:13.5px; line-height:1.6;
+  }
+  .ph{display:flex; justify-content:space-between; align-items:flex-start; gap:24px;
+      border-bottom:3px solid var(--accent); padding-bottom:18px; margin-bottom:26px}
+  .brand{font-family:var(--font-display); font-weight:700; font-size:2.6rem; color:var(--accent); line-height:1; letter-spacing:-.02em}
+  .brand small{display:block; font-family:var(--font-body); font-weight:400; font-size:.72rem;
+               color:var(--ink-soft); letter-spacing:.04em; margin-top:7px; text-transform:uppercase}
+  .meta{text-align:right; font-size:.75rem; color:var(--ink-soft); line-height:1.7; white-space:nowrap}
+  .meta b{color:var(--ink); font-weight:600}
+
+  .para-quem{margin-bottom:26px}
+  .para-quem .quem{font-family:var(--font-display); font-size:1.3rem; font-weight:700; color:var(--ink)}
+  .para-quem .contato{font-size:.78rem; color:var(--ink-soft)}
+
+  .sec{font-family:var(--font-display); font-size:.68rem; font-weight:700; letter-spacing:.1em;
+       text-transform:uppercase; color:var(--accent); margin:0 0 9px}
+  .bloco{margin-bottom:24px}
+  .bloco ul{margin:0; padding-left:17px}
+  .bloco li{margin-bottom:5px}
+  .bloco p{margin:0 0 6px}
+
+  .grade{display:grid; grid-template-columns:1fr 1fr; gap:6px 28px; font-size:.82rem}
+  .grade div{display:flex; justify-content:space-between; gap:12px; border-bottom:1px solid var(--rule); padding:5px 0}
+  .grade span:first-child{color:var(--ink-soft)}
+  .grade span:last-child{font-weight:500; text-align:right}
+
+  .valor{border-top:3px solid var(--accent); margin-top:28px; padding-top:18px;
+         display:flex; justify-content:space-between; align-items:baseline; gap:20px}
+  .valor .rot{font-family:var(--font-display); font-size:.72rem; letter-spacing:.1em; text-transform:uppercase; color:var(--ink-soft)}
+  .valor .num{font-family:var(--font-display); font-size:2.5rem; font-weight:700; color:var(--accent); line-height:1}
+  .obs{font-size:.76rem; color:var(--ink-soft); margin-top:14px; line-height:1.65}
+  .rodape{margin-top:34px; padding-top:16px; border-top:1px solid var(--rule);
+          font-size:.72rem; color:var(--ink-soft); display:flex; justify-content:space-between; gap:18px}
+  .vazio{color:#b9b3c7; font-style:italic}
+
+  /* ---------- impressão ---------- */
+  @page{ size:A4; margin:14mm }
+  @media print{
+    body{background:#fff}
+    .editor,.no-print{display:none !important}
+    .shell{display:block; padding:0; max-width:none}
+    .paper{max-width:none; padding:0; border-radius:0; font-size:11.5pt}
+    .brand{font-size:2.2rem}
+    .valor .num{font-size:2.1rem}
+    .bloco{break-inside:avoid}
+  }
+</style>
+</head>
+<body>
+<div class="shell">
+
+  <!-- ================= EDITOR ================= -->
+  <aside class="editor">
+    <span class="tag">uso interno</span>
+    <h1>Gerador de proposta</h1>
+    <p class="lead">Nada aqui é salvo nem enviado. O que você digita fica só neste navegador e some quando fechar a aba.</p>
+
+    <div class="card">
+      <h2>Colar da planilha</h2>
+      <label>Cole o bloco do orçamento <span class="hint">selecione de "Nº do orçamento" até "VALOR DO PROJETO" na planilha e cole aqui</span></label>
+      <textarea id="colagem" placeholder="Nº do orçamento&#9;2026-001&#10;Cliente&#9;..."></textarea>
+      <button class="btn ghost" id="btnLer">Ler colagem e preencher</button>
+      <div class="ok" id="status"></div>
+    </div>
+
+    <div class="card">
+      <h2>Cabeçalho</h2>
+      <div class="row2">
+        <div><label>Nº</label><input id="numero" value="2026-001"></div>
+        <div><label>Data</label><input id="data" type="date"></div>
+      </div>
+      <div class="row2">
+        <div><label>Validade <span class="hint">dias</span></label><input id="validade" type="number" value="7" min="1"></div>
+        <div><label>Seus contatos</label><input id="meucontato" placeholder="whatsapp · e-mail"></div>
+      </div>
+      <label>Cliente</label><input id="cliente" placeholder="Nome do cliente ou empresa">
+      <label>Contato do cliente</label><input id="contato" placeholder="whatsapp ou e-mail">
+    </div>
+
+    <div class="card">
+      <h2>O projeto</h2>
+      <div class="row2">
+        <div><label>Formato</label><input id="formato" placeholder="Vertical 9:16"></div>
+        <div><label>Quantidade</label><input id="quantidade" placeholder="1 vídeo"></div>
+      </div>
+      <div class="row2">
+        <div><label>Tom</label><input id="tom" placeholder="Divertido"></div>
+        <div><label>Material</label><input id="material" placeholder="Já tem — só edição"></div>
+      </div>
+      <label>Objetivo</label><input id="objetivo" placeholder="O que esse vídeo precisa fazer">
+      <label>Escopo <span class="hint">uma linha por item</span></label>
+      <textarea id="escopo" placeholder="Edição completa&#10;Correção de cor e som&#10;Legendas queimadas"></textarea>
+      <label>Entregáveis <span class="hint">uma linha por item</span></label>
+      <textarea id="entregaveis" placeholder="1 vídeo vertical 9:16, até 60s&#10;1 corte quadrado para feed"></textarea>
+    </div>
+
+    <div class="card">
+      <h2>Condições</h2>
+      <div class="row2">
+        <div><label>Revisões inclusas</label><input id="revisoes" value="2"></div>
+        <div><label>Prazo de entrega</label><input id="prazo" value="até 7 dias úteis"></div>
+      </div>
+      <label>Formato de entrega</label><input id="entrega" value="MP4 H.264, por link">
+      <label>Forma de pagamento</label><input id="pagamento" value="50% na aprovação, 50% na entrega">
+      <label>Valor do projeto</label><input id="valor" placeholder="R$ 1.163,56">
+      <label>Observações <span class="hint">o que não está incluso</span></label>
+      <textarea id="obs" placeholder="Não inclui trilha licenciada nem locução profissional."></textarea>
+    </div>
+
+    <button class="btn" onclick="window.print()">Imprimir / salvar em PDF</button>
+    <p class="nota">Na janela de impressão, escolha <b>Salvar como PDF</b> e deixe "Gráficos de fundo" ligado. Só a proposta é impressa — este painel some.</p>
+  </aside>
+
+  <!-- ================= PAPEL ================= -->
+  <main class="paper-wrap">
+    <article class="paper" id="papel">
+      <header class="ph">
+        <div class="brand">RIQ<small>Edição de vídeo · Motion design</small></div>
+        <div class="meta">
+          Proposta <b id="p-num">2026-001</b><br>
+          <span id="p-data"></span><br>
+          Válida até <b id="p-validade"></b>
+        </div>
+      </header>
+
+      <div class="para-quem">
+        <div class="quem" id="p-cliente">Cliente</div>
+        <div class="contato" id="p-contato"></div>
+      </div>
+
+      <div class="bloco" id="bl-objetivo">
+        <p class="sec">Objetivo</p>
+        <p id="p-objetivo"></p>
+      </div>
+
+      <div class="bloco">
+        <p class="sec">O projeto</p>
+        <div class="grade" id="p-grade"></div>
+      </div>
+
+      <div class="bloco" id="bl-escopo">
+        <p class="sec">Escopo</p>
+        <ul id="p-escopo"></ul>
+      </div>
+
+      <div class="bloco" id="bl-entregaveis">
+        <p class="sec">Entregáveis</p>
+        <ul id="p-entregaveis"></ul>
+      </div>
+
+      <div class="bloco">
+        <p class="sec">Condições</p>
+        <div class="grade" id="p-cond"></div>
+      </div>
+
+      <div class="valor">
+        <span class="rot">Investimento</span>
+        <span class="num" id="p-valor">—</span>
+      </div>
+      <p class="obs" id="p-obs"></p>
+
+      <footer class="rodape">
+        <span>Valor referente ao escopo descrito. Alteração de escopo gera nova proposta.</span>
+        <span id="p-meucontato"></span>
+      </footer>
+    </article>
+  </main>
+</div>
+
+<script>
+(function(){
+  var $ = function(id){ return document.getElementById(id); };
+  var campos = ['numero','data','validade','meucontato','cliente','contato','formato','quantidade',
+                'tom','material','objetivo','escopo','entregaveis','revisoes','prazo','entrega',
+                'pagamento','valor','obs'];
+
+  function hoje(){
+    var d = new Date(), p = function(n){ return String(n).padStart(2,'0'); };
+    return d.getFullYear() + '-' + p(d.getMonth()+1) + '-' + p(d.getDate());
+  }
+  function brDate(iso){
+    if(!iso) return '';
+    var x = iso.split('-');
+    return x.length === 3 ? x[2] + '/' + x[1] + '/' + x[0] : iso;
+  }
+  function maisDias(iso, dias){
+    if(!iso) return '';
+    var d = new Date(iso + 'T12:00:00');
+    d.setDate(d.getDate() + (parseInt(dias,10) || 0));
+    return brDate(d.toISOString().slice(0,10));
+  }
+  function linhas(txt){
+    return (txt||'').split('\n').map(function(s){ return s.trim(); }).filter(Boolean);
+  }
+  function listaEm(el, txt, vazio){
+    el.innerHTML = '';
+    var itens = linhas(txt);
+    if(!itens.length){
+      var li = document.createElement('li');
+      li.className = 'vazio'; li.textContent = vazio;
+      el.appendChild(li); return;
+    }
+    itens.forEach(function(t){
+      var li = document.createElement('li'); li.textContent = t; el.appendChild(li);
+    });
+  }
+  function par(el, pares){
+    el.innerHTML = '';
+    pares.forEach(function(p){
+      if(!p[1]) return;
+      var d = document.createElement('div');
+      var a = document.createElement('span'); a.textContent = p[0];
+      var b = document.createElement('span'); b.textContent = p[1];
+      d.appendChild(a); d.appendChild(b); el.appendChild(d);
+    });
+    if(!el.children.length){
+      var v = document.createElement('div');
+      v.innerHTML = '<span class="vazio">preencha ao lado</span><span></span>';
+      el.appendChild(v);
+    }
+  }
+
+  function render(){
+    var v = {};
+    campos.forEach(function(c){ v[c] = ($(c).value || '').trim(); });
+
+    $('p-num').textContent = v.numero || '—';
+    $('p-data').textContent = brDate(v.data);
+    $('p-validade').textContent = maisDias(v.data, v.validade) || '—';
+    $('p-cliente').textContent = v.cliente || 'Cliente';
+    $('p-contato').textContent = v.contato;
+    $('p-meucontato').textContent = v.meucontato;
+
+    $('bl-objetivo').style.display = v.objetivo ? '' : 'none';
+    $('p-objetivo').textContent = v.objetivo;
+
+    par($('p-grade'), [['Formato', v.formato], ['Quantidade', v.quantidade],
+                       ['Tom', v.tom], ['Material', v.material]]);
+    listaEm($('p-escopo'), v.escopo, 'descreva o escopo ao lado');
+    listaEm($('p-entregaveis'), v.entregaveis, 'liste os entregáveis ao lado');
+    par($('p-cond'), [['Revisões inclusas', v.revisoes], ['Prazo de entrega', v.prazo],
+                      ['Formato de entrega', v.entrega], ['Pagamento', v.pagamento]]);
+
+    $('p-valor').textContent = v.valor || '—';
+    $('p-obs').textContent = v.obs;
+  }
+
+  // ---- leitura da colagem vinda da planilha ----
+  function normal(s){
+    return (s||'').toLowerCase()
+      .normalize('NFD').replace(/[̀-ͯ]/g,'')
+      .replace(/\s+/g,' ').trim();
+  }
+  var mapa = [
+    ['no do orcamento','numero'], ['n do orcamento','numero'],
+    ['cliente','cliente'],
+    ['contato do cliente','contato'],
+    ['validade','validade'],
+    ['prazo de entrega','prazo'],
+    ['rodadas de revisao inclusas','revisoes'],
+    ['formato de entrega','entrega'],
+    ['forma de pagamento','pagamento'],
+    ['valor do projeto','valor'],
+    ['formato','formato'], ['quantidade','quantidade'],
+    ['objetivo','objetivo'], ['tom','tom'], ['material','material']
+  ];
+  function achaCampo(rotulo){
+    var r = normal(rotulo);
+    if(!r) return null;
+    for(var i=0;i<mapa.length;i++){
+      if(r === mapa[i][0] || r.indexOf(mapa[i][0]) === 0) return mapa[i][1];
+    }
+    return null;
+  }
+
+  function lerColagem(){
+    var bruto = $('colagem').value;
+    if(!bruto.trim()){ $('status').textContent = 'Cole o bloco da planilha primeiro.'; return; }
+
+    var secao = null, escopo = [], entreg = [], achados = 0;
+    bruto.split('\n').forEach(function(linha){
+      var cols = linha.split('\t');
+      var a = (cols[0]||'').trim();
+      var b = (cols.slice(1).join(' ')||'').trim();
+      var na = normal(a);
+
+      if(!b){
+        if(na.indexOf('escopo') === 0){ secao = 'escopo'; return; }
+        if(na.indexOf('entregavei') === 0){ secao = 'entregaveis'; return; }
+        if(na.indexOf('condicoes') === 0 || na.indexOf('investimento') === 0){ secao = null; return; }
+      }
+      if(!a && b){
+        if(secao === 'escopo') escopo.push(b);
+        else if(secao === 'entregaveis') entreg.push(b);
+        return;
+      }
+      var campo = achaCampo(a);
+      if(campo && b){
+        if(campo === 'validade') b = b.replace(/\D+/g,'') || b;
+        if(campo === 'revisoes') b = b.replace(/\s*rodada.*/i,'') || b;
+        $(campo).value = b;
+        achados++;
+      }
+    });
+
+    if(escopo.length){ $('escopo').value = escopo.join('\n'); achados += escopo.length; }
+    if(entreg.length){ $('entregaveis').value = entreg.join('\n'); achados += entreg.length; }
+
+    render();
+    $('status').textContent = achados
+      ? achados + ' campo(s) preenchido(s). Confira antes de imprimir.'
+      : 'Não reconheci nada. Confira se copiou as duas colunas da planilha.';
+  }
+
+  campos.forEach(function(c){
+    $(c).addEventListener('input', render);
+    $(c).addEventListener('change', render);
+  });
+  $('btnLer').addEventListener('click', lerColagem);
+
+  $('data').value = hoje();
+  render();
+})();
+</script>
+</body>
+</html>

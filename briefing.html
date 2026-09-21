@@ -221,18 +221,18 @@
     border-radius: 2px;
     transform-origin: bottom;
     /* camada propria: a animacao roda na GPU em vez de repintar a cada quadro */
-    will-change: transform;
-    backface-visibility: hidden;
+    
+    
   }
   .tone.is-picked .viz i{ background: var(--accent-soft); }
 
   /* cada pegada anima no próprio ritmo */
-  @keyframes beat{ 0%,100%{ transform: scaleY(1); } 50%{ transform: scaleY(.35); } }
+  @keyframes beat{ 0%,100%{ transform: scaleY(1); } 50%{ transform: scaleY(.5); } }
   @keyframes drift{ 0%,100%{ transform: scaleY(1); } 50%{ transform: scaleY(.85); } }
   @keyframes wide{ 0%,100%{ opacity: .5; transform: scaleX(1); } 50%{ opacity: 1; transform: scaleX(.94); } }
   @keyframes bounce{ 0%,100%{ transform: scaleY(1); } 40%{ transform: scaleY(.3); } 60%{ transform: scaleY(1.15); } }
 
-  .t-fast .viz i{ animation: beat .55s ease-in-out infinite; }
+  .t-fast .viz i{ animation: beat .75s ease-in-out infinite; }
   .t-fast .viz i:nth-child(2){ animation-delay: .08s; }
   .t-fast .viz i:nth-child(3){ animation-delay: .16s; }
   .t-fast .viz i:nth-child(4){ animation-delay: .24s; }

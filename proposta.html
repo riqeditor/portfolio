@@ -7,118 +7,132 @@
 <title>Gerador de proposta — RIQ (uso interno)</title>
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-<link href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@500;700&family=Inter:wght@400;500;600&display=swap" rel="stylesheet">
+<link href="https://fonts.googleapis.com/css2?family=Bebas+Neue&family=DM+Sans:wght@400;500;700&display=swap" rel="stylesheet">
 <style>
   :root{
-    --bg:#0a0812; --bg-card:#140f20; --bg-input:#0e0a18;
-    --text:#f5f3fa; --text-soft:#b0a8c8; --text-tertiary:#6f6590;
-    --accent:#FE0C70; --accent-soft:#ff5c9d;
+    --bg:#080808; --bg-card:#111111; --bg-input:#181818;
+    --text:#f0ede8; --text-soft:#a9a6a1; --text-tertiary:#767676;
+    --accent:#FE0C70; --accent-soft:#ff4d92; --accent-dim:#8B063D;
     --border-soft:rgba(254,12,112,0.22);
-    --paper:#ffffff; --ink:#15121c; --ink-soft:#5d5870; --rule:#e6e1ee;
-    --font-display:'Space Grotesk',sans-serif; --font-body:'Inter',sans-serif;
+    --paper:#ffffff; --ink:#101010; --ink-soft:#6b6b6b; --rule:#e8e6e2;
+    --radius:14px;
+    --font-display:'Bebas Neue',sans-serif; --font-body:'DM Sans',sans-serif;
   }
   *{box-sizing:border-box}
   body{
-    margin:0; background:radial-gradient(circle at 20% -10%,#1b0f27 0%,var(--bg) 45%),var(--bg);
-    color:var(--text); font-family:var(--font-body); line-height:1.5;
-    -webkit-font-smoothing:antialiased;
+    margin:0; background:var(--bg);
+    color:var(--text); font-family:var(--font-body); line-height:1.5; -webkit-font-smoothing:antialiased;
   }
-  .shell{display:grid; grid-template-columns:minmax(320px,420px) 1fr; gap:28px; padding:28px 24px 72px; max-width:1400px; margin:0 auto}
+  .shell{display:grid; grid-template-columns:minmax(320px,430px) 1fr; gap:28px; padding:28px 24px 72px; max-width:1420px; margin:0 auto}
   @media (max-width:980px){ .shell{grid-template-columns:1fr} }
 
-  /* ---------- editor ---------- */
-  .editor h1{font-family:var(--font-display); font-size:1.35rem; margin:0 0 4px}
+  .editor h1{font-family:var(--font-display); font-size:1.9rem; letter-spacing:.02em; margin:0 0 2px}
   .tag{display:inline-block; font-size:.66rem; font-weight:600; letter-spacing:.06em; text-transform:uppercase;
        background:rgba(254,12,112,.15); color:var(--accent-soft); padding:4px 10px; border-radius:100px; margin-bottom:10px}
   .editor .lead{color:var(--text-soft); font-size:.85rem; margin:0 0 20px}
-  .card{background:var(--bg-card); border:1px solid var(--border-soft); border-radius:16px; padding:18px; margin-bottom:16px}
-  .card h2{font-family:var(--font-display); font-size:.72rem; text-transform:uppercase; letter-spacing:.08em;
-           color:var(--accent-soft); margin:0 0 12px}
+  .card{background:var(--bg-card); border:1px solid var(--border-soft); border-radius:var(--radius); padding:18px; margin-bottom:16px}
+  .card h2{font-family:var(--font-display); font-size:.95rem; text-transform:uppercase; letter-spacing:.12em;
+           color:var(--accent); margin:0 0 12px}
   label{display:block; font-size:.78rem; font-weight:500; margin:0 0 4px}
   .hint{font-size:.7rem; color:var(--text-tertiary); font-weight:400}
-  input,textarea,select{
+  input,textarea{
     width:100%; background:var(--bg-input); border:1px solid var(--border-soft); border-radius:9px;
     padding:9px 11px; color:var(--text); font-family:var(--font-body); font-size:.9rem; margin-bottom:11px;
   }
-  textarea{resize:vertical; min-height:72px; line-height:1.45}
-  input:focus,textarea:focus,select:focus{outline:none; border-color:var(--accent)}
+  textarea{resize:vertical; min-height:74px; line-height:1.45}
+  input:focus,textarea:focus{outline:none; border-color:var(--accent)}
   .row2{display:grid; grid-template-columns:1fr 1fr; gap:10px}
-  .btn{
-    width:100%; background:var(--accent); color:#fff; border:0; border-radius:100px;
-    padding:12px 18px; font-family:var(--font-display); font-weight:700; font-size:.9rem; cursor:pointer;
-  }
+  .btn{width:100%; background:var(--accent); color:#fff; border:0; border-radius:100px;
+       padding:13px 18px; font-family:var(--font-display); font-size:1.15rem; letter-spacing:.06em; cursor:pointer}
   .btn.ghost{background:transparent; color:var(--accent-soft); border:1px solid var(--border-soft)}
-  .btn+.btn{margin-top:9px}
   .nota{font-size:.72rem; color:var(--text-tertiary); line-height:1.6; margin-top:14px}
-  .ok{color:#4ade80; font-size:.75rem; min-height:1.2em; margin-top:6px}
+  .ok{color:#4ade80; font-size:.75rem; min-height:1.2em; margin:6px 0 0}
 
-  /* ---------- papel ---------- */
-  .paper-wrap{display:flex; justify-content:center}
-  .paper{
-    background:var(--paper); color:var(--ink); width:100%; max-width:780px;
-    border-radius:6px; padding:56px 56px 48px; font-size:13.5px; line-height:1.6;
+  /* chips */
+  .chips{display:flex; flex-wrap:wrap; gap:6px; margin:-4px 0 13px}
+  .chip{
+    background:var(--bg-input); border:1px solid var(--border-soft); color:var(--text-soft);
+    border-radius:100px; padding:5px 11px; font-size:.72rem; font-family:var(--font-body);
+    cursor:pointer; line-height:1.3; transition:background .12s,color .12s,border-color .12s;
   }
+  .chip:hover{border-color:var(--accent-soft); color:var(--text)}
+  .chip.on{background:var(--accent); border-color:var(--accent); color:#fff; font-weight:600}
+  .pacotes{display:grid; grid-template-columns:1fr 1fr; gap:7px; margin-bottom:6px}
+  .pac{
+    background:var(--bg-input); border:1px solid var(--border-soft); color:var(--text);
+    border-radius:11px; padding:10px 12px; font-family:var(--font-display);
+    font-size:1.05rem; letter-spacing:.04em; cursor:pointer; text-align:left; line-height:1.15;
+  }
+  .pac small{display:block; font-family:var(--font-body); font-weight:400; font-size:.68rem; color:var(--text-tertiary); margin-top:3px}
+  .pac:hover{border-color:var(--accent-soft)}
+  .pac.on{background:rgba(254,12,112,.14); border-color:var(--accent)}
+
+  /* papel */
+  .paper-wrap{display:flex; justify-content:center}
+  .paper{background:var(--paper); color:var(--ink); width:100%; max-width:780px;
+         border-radius:6px; padding:56px 56px 48px; font-size:13.5px; line-height:1.6}
   .ph{display:flex; justify-content:space-between; align-items:flex-start; gap:24px;
       border-bottom:3px solid var(--accent); padding-bottom:18px; margin-bottom:26px}
-  .brand{font-family:var(--font-display); font-weight:700; font-size:2.6rem; color:var(--accent); line-height:1; letter-spacing:-.02em}
-  .brand small{display:block; font-family:var(--font-body); font-weight:400; font-size:.72rem;
+  .brand{font-family:var(--font-display); font-size:3.4rem; color:var(--accent); line-height:.88; letter-spacing:.01em}
+  .brand small{display:block; font-family:var(--font-body); font-weight:500; font-size:.7rem;
                color:var(--ink-soft); letter-spacing:.04em; margin-top:7px; text-transform:uppercase}
   .meta{text-align:right; font-size:.75rem; color:var(--ink-soft); line-height:1.7; white-space:nowrap}
   .meta b{color:var(--ink); font-weight:600}
-
   .para-quem{margin-bottom:26px}
-  .para-quem .quem{font-family:var(--font-display); font-size:1.3rem; font-weight:700; color:var(--ink)}
+  .para-quem .quem{font-family:var(--font-display); font-size:1.9rem; line-height:1.1; letter-spacing:.01em}
   .para-quem .contato{font-size:.78rem; color:var(--ink-soft)}
-
-  .sec{font-family:var(--font-display); font-size:.68rem; font-weight:700; letter-spacing:.1em;
+  .sec{font-family:var(--font-display); font-size:.92rem; letter-spacing:.14em;
        text-transform:uppercase; color:var(--accent); margin:0 0 9px}
   .bloco{margin-bottom:24px}
   .bloco ul{margin:0; padding-left:17px}
   .bloco li{margin-bottom:5px}
   .bloco p{margin:0 0 6px}
-
   .grade{display:grid; grid-template-columns:1fr 1fr; gap:6px 28px; font-size:.82rem}
   .grade div{display:flex; justify-content:space-between; gap:12px; border-bottom:1px solid var(--rule); padding:5px 0}
   .grade span:first-child{color:var(--ink-soft)}
   .grade span:last-child{font-weight:500; text-align:right}
-
   .valor{border-top:3px solid var(--accent); margin-top:28px; padding-top:18px;
          display:flex; justify-content:space-between; align-items:baseline; gap:20px}
-  .valor .rot{font-family:var(--font-display); font-size:.72rem; letter-spacing:.1em; text-transform:uppercase; color:var(--ink-soft)}
-  .valor .num{font-family:var(--font-display); font-size:2.5rem; font-weight:700; color:var(--accent); line-height:1}
+  .valor .rot{font-family:var(--font-display); font-size:.95rem; letter-spacing:.14em; text-transform:uppercase; color:var(--ink-soft)}
+  .valor .num{font-family:var(--font-display); font-size:3.1rem; color:var(--accent); line-height:1; font-variant-numeric:tabular-nums}
   .obs{font-size:.76rem; color:var(--ink-soft); margin-top:14px; line-height:1.65}
   .rodape{margin-top:34px; padding-top:16px; border-top:1px solid var(--rule);
           font-size:.72rem; color:var(--ink-soft); display:flex; justify-content:space-between; gap:18px}
   .vazio{color:#b9b3c7; font-style:italic}
 
-  /* ---------- impressão ---------- */
   @page{ size:A4; margin:14mm }
   @media print{
     body{background:#fff}
+    .paper{color:var(--ink)}
     .editor,.no-print{display:none !important}
     .shell{display:block; padding:0; max-width:none}
     .paper{max-width:none; padding:0; border-radius:0; font-size:11.5pt}
-    .brand{font-size:2.2rem}
-    .valor .num{font-size:2.1rem}
+    .brand{font-size:2.9rem}
+    .valor .num{font-size:2.6rem}
     .bloco{break-inside:avoid}
   }
 </style>
 </head>
 <body>
 <div class="shell">
-
-  <!-- ================= EDITOR ================= -->
   <aside class="editor">
     <span class="tag">uso interno</span>
     <h1>Gerador de proposta</h1>
     <p class="lead">Nada aqui é salvo nem enviado. O que você digita fica só neste navegador e some quando fechar a aba.</p>
 
     <div class="card">
-      <h2>Colar da planilha</h2>
-      <label>Cole o bloco do orçamento <span class="hint">selecione de "Nº do orçamento" até "VALOR DO PROJETO" na planilha e cole aqui</span></label>
-      <textarea id="colagem" placeholder="Nº do orçamento&#9;2026-001&#10;Cliente&#9;..."></textarea>
+      <h2>Colar</h2>
+      <label>Cole o e-mail do briefing ou o bloco da planilha
+        <span class="hint">ele reconhece os dois e preenche o que der</span></label>
+      <textarea id="colagem" placeholder="Nome&#9;Camila Ferraz&#10;Formato&#9;Vertical 9:16&#10;..."></textarea>
       <button class="btn ghost" id="btnLer">Ler colagem e preencher</button>
-      <div class="ok" id="status"></div>
+      <p class="ok" id="status"></p>
+    </div>
+
+    <div class="card">
+      <h2>Pacote</h2>
+      <div class="pacotes" id="pacotes"></div>
+      <p class="nota" style="margin-top:8px">Preenche escopo, entregáveis e condições de uma vez. Depois é só ajustar.</p>
     </div>
 
     <div class="card">
@@ -132,7 +146,7 @@
         <div><label>Seus contatos</label><input id="meucontato" placeholder="whatsapp · e-mail"></div>
       </div>
       <label>Cliente</label><input id="cliente" placeholder="Nome do cliente ou empresa">
-      <label>Contato do cliente</label><input id="contato" placeholder="whatsapp ou e-mail">
+      <label>Contato do cliente</label><input id="contato" placeholder="whatsapp, e-mail ou @">
     </div>
 
     <div class="card">
@@ -145,11 +159,16 @@
         <div><label>Tom</label><input id="tom" placeholder="Divertido"></div>
         <div><label>Material</label><input id="material" placeholder="Já tem — só edição"></div>
       </div>
-      <label>Objetivo</label><input id="objetivo" placeholder="O que esse vídeo precisa fazer">
-      <label>Escopo <span class="hint">uma linha por item</span></label>
-      <textarea id="escopo" placeholder="Edição completa&#10;Correção de cor e som&#10;Legendas queimadas"></textarea>
-      <label>Entregáveis <span class="hint">uma linha por item</span></label>
-      <textarea id="entregaveis" placeholder="1 vídeo vertical 9:16, até 60s&#10;1 corte quadrado para feed"></textarea>
+      <label>Objetivo <span class="hint">o briefing dá três palavras; aqui vira uma frase</span></label>
+      <input id="objetivo" placeholder="O que esse vídeo precisa fazer">
+
+      <label>Escopo</label>
+      <textarea id="escopo" placeholder="uma linha por item"></textarea>
+      <div class="chips" id="chips-escopo"></div>
+
+      <label>Entregáveis</label>
+      <textarea id="entregaveis" placeholder="uma linha por item"></textarea>
+      <div class="chips" id="chips-entregaveis"></div>
     </div>
 
     <div class="card">
@@ -162,14 +181,14 @@
       <label>Forma de pagamento</label><input id="pagamento" value="50% na aprovação, 50% na entrega">
       <label>Valor do projeto</label><input id="valor" placeholder="R$ 1.163,56">
       <label>Observações <span class="hint">o que não está incluso</span></label>
-      <textarea id="obs" placeholder="Não inclui trilha licenciada nem locução profissional."></textarea>
+      <textarea id="obs" placeholder="uma linha por item"></textarea>
+      <div class="chips" id="chips-obs"></div>
     </div>
 
     <button class="btn" onclick="window.print()">Imprimir / salvar em PDF</button>
-    <p class="nota">Na janela de impressão, escolha <b>Salvar como PDF</b> e deixe "Gráficos de fundo" ligado. Só a proposta é impressa — este painel some.</p>
+    <p class="nota">Na janela de impressão, escolha <b>Salvar como PDF</b> e deixe "Gráficos de fundo" ligado. Só a proposta é impressa.</p>
   </aside>
 
-  <!-- ================= PAPEL ================= -->
   <main class="paper-wrap">
     <article class="paper" id="papel">
       <header class="ph">
@@ -180,43 +199,29 @@
           Válida até <b id="p-validade"></b>
         </div>
       </header>
-
       <div class="para-quem">
         <div class="quem" id="p-cliente">Cliente</div>
         <div class="contato" id="p-contato"></div>
       </div>
-
       <div class="bloco" id="bl-objetivo">
-        <p class="sec">Objetivo</p>
-        <p id="p-objetivo"></p>
+        <p class="sec">Objetivo</p><p id="p-objetivo"></p>
       </div>
-
       <div class="bloco">
-        <p class="sec">O projeto</p>
-        <div class="grade" id="p-grade"></div>
+        <p class="sec">O projeto</p><div class="grade" id="p-grade"></div>
       </div>
-
-      <div class="bloco" id="bl-escopo">
-        <p class="sec">Escopo</p>
-        <ul id="p-escopo"></ul>
-      </div>
-
-      <div class="bloco" id="bl-entregaveis">
-        <p class="sec">Entregáveis</p>
-        <ul id="p-entregaveis"></ul>
-      </div>
-
       <div class="bloco">
-        <p class="sec">Condições</p>
-        <div class="grade" id="p-cond"></div>
+        <p class="sec">Escopo</p><ul id="p-escopo"></ul>
       </div>
-
+      <div class="bloco">
+        <p class="sec">Entregáveis</p><ul id="p-entregaveis"></ul>
+      </div>
+      <div class="bloco">
+        <p class="sec">Condições</p><div class="grade" id="p-cond"></div>
+      </div>
       <div class="valor">
-        <span class="rot">Investimento</span>
-        <span class="num" id="p-valor">—</span>
+        <span class="rot">Investimento</span><span class="num" id="p-valor">—</span>
       </div>
       <p class="obs" id="p-obs"></p>
-
       <footer class="rodape">
         <span>Valor referente ao escopo descrito. Alteração de escopo gera nova proposta.</span>
         <span id="p-meucontato"></span>
@@ -232,6 +237,96 @@
                 'tom','material','objetivo','escopo','entregaveis','revisoes','prazo','entrega',
                 'pagamento','valor','obs'];
 
+  /* ---------- etiquetas clicáveis ---------- */
+  var ETIQUETAS = {
+    escopo: ['Edição completa a partir do material bruto','Correção de cor','Tratamento de áudio',
+             'Legendas queimadas','Vinheta de abertura e encerramento','Motion e GCs',
+             'Roteiro e decupagem','Captação em locação','Trilha e sound design'],
+    entregaveis: ['1 vídeo vertical 9:16','1 vídeo quadrado 1:1','1 vídeo horizontal 16:9',
+                  'Cortes para redes','Thumbnail','Arquivos-fonte do projeto'],
+    obs: ['Não inclui trilha licenciada','Não inclui locução profissional','Não inclui captação',
+          'Não inclui direitos de imagem de terceiros','Não inclui impulsionamento']
+  };
+
+  /* ---------- pacotes ---------- */
+  var PACOTES = [
+    { id:'reels', nome:'Reels avulso', dica:'corte simples',
+      escopo:['Edição completa a partir do material bruto','Correção de cor','Tratamento de áudio','Legendas queimadas'],
+      entregaveis:['1 vídeo vertical 9:16'],
+      revisoes:'2', prazo:'até 5 dias úteis',
+      entrega:'MP4 H.264, por link', pagamento:'50% na aprovação, 50% na entrega' },
+    { id:'inst', nome:'Institucional curto', dica:'peça de apresentação',
+      escopo:['Roteiro e decupagem','Edição completa a partir do material bruto','Correção de cor','Tratamento de áudio','Legendas queimadas','Vinheta de abertura e encerramento'],
+      entregaveis:['1 vídeo horizontal 16:9','Cortes para redes'],
+      revisoes:'3', prazo:'até 10 dias úteis',
+      entrega:'MP4 H.264, por link', pagamento:'50% na aprovação, 50% na entrega' },
+    { id:'mensal', nome:'Pacote mensal', dica:'recorrência',
+      escopo:['Edição completa a partir do material bruto','Correção de cor','Tratamento de áudio','Legendas queimadas','Adaptação de formatos'],
+      entregaveis:['1 vídeo vertical 9:16','Cortes para redes'],
+      revisoes:'2 por peça', prazo:'entregas semanais',
+      entrega:'MP4 H.264, por link', pagamento:'mensal, no início de cada ciclo' },
+    { id:'completa', nome:'Produção completa', dica:'captação + pós',
+      escopo:['Roteiro e decupagem','Captação em locação','Edição completa a partir do material bruto','Correção de cor','Tratamento de áudio','Motion e GCs','Trilha e sound design'],
+      entregaveis:['1 vídeo horizontal 16:9','Cortes para redes','Arquivos-fonte do projeto'],
+      revisoes:'3', prazo:'até 20 dias úteis',
+      entrega:'MP4 H.264 + ProRes, por link', pagamento:'40% na assinatura, 30% na captação, 30% na entrega' }
+  ];
+
+  function linhas(txt){
+    return (txt||'').split('\n').map(function(s){ return s.trim(); }).filter(Boolean);
+  }
+  function alterna(campo, texto){
+    var atuais = linhas($(campo).value);
+    var i = atuais.indexOf(texto);
+    if(i === -1) atuais.push(texto); else atuais.splice(i,1);
+    $(campo).value = atuais.join('\n');
+    render();
+  }
+  function montaEtiquetas(campo){
+    var box = $('chips-' + campo);
+    box.innerHTML = '';
+    ETIQUETAS[campo].forEach(function(t){
+      var b = document.createElement('button');
+      b.type = 'button'; b.className = 'chip'; b.textContent = t;
+      b.addEventListener('click', function(){ alterna(campo, t); });
+      box.appendChild(b);
+    });
+  }
+  function pintaEtiquetas(){
+    Object.keys(ETIQUETAS).forEach(function(campo){
+      var atuais = linhas($(campo).value);
+      var botoes = $('chips-' + campo).children;
+      for(var i=0;i<botoes.length;i++){
+        botoes[i].classList.toggle('on', atuais.indexOf(botoes[i].textContent) !== -1);
+      }
+    });
+  }
+  function montaPacotes(){
+    var box = $('pacotes');
+    PACOTES.forEach(function(p){
+      var b = document.createElement('button');
+      b.type = 'button'; b.className = 'pac'; b.dataset.id = p.id;
+      b.innerHTML = '';
+      b.appendChild(document.createTextNode(p.nome));
+      var s = document.createElement('small'); s.textContent = p.dica; b.appendChild(s);
+      b.addEventListener('click', function(){ aplicaPacote(p); });
+      box.appendChild(b);
+    });
+  }
+  function aplicaPacote(p){
+    $('escopo').value = p.escopo.join('\n');
+    $('entregaveis').value = p.entregaveis.join('\n');
+    $('revisoes').value = p.revisoes;
+    $('prazo').value = p.prazo;
+    $('entrega').value = p.entrega;
+    $('pagamento').value = p.pagamento;
+    var bs = $('pacotes').children;
+    for(var i=0;i<bs.length;i++) bs[i].classList.toggle('on', bs[i].dataset.id === p.id);
+    render();
+    $('status').textContent = 'Pacote "' + p.nome + '" aplicado. Ajuste o que for específico deste cliente.';
+  }
+
+  /* ---------- papel ---------- */
   function hoje(){
     var d = new Date(), p = function(n){ return String(n).padStart(2,'0'); };
     return d.getFullYear() + '-' + p(d.getMonth()+1) + '-' + p(d.getDate());
@@ -247,15 +342,11 @@
     d.setDate(d.getDate() + (parseInt(dias,10) || 0));
     return brDate(d.toISOString().slice(0,10));
   }
-  function linhas(txt){
-    return (txt||'').split('\n').map(function(s){ return s.trim(); }).filter(Boolean);
-  }
   function listaEm(el, txt, vazio){
     el.innerHTML = '';
     var itens = linhas(txt);
     if(!itens.length){
-      var li = document.createElement('li');
-      li.className = 'vazio'; li.textContent = vazio;
+      var li = document.createElement('li'); li.className='vazio'; li.textContent = vazio;
       el.appendChild(li); return;
     }
     itens.forEach(function(t){
@@ -273,46 +364,41 @@
     });
     if(!el.children.length){
       var v = document.createElement('div');
-      v.innerHTML = '<span class="vazio">preencha ao lado</span><span></span>';
+      var s1 = document.createElement('span'); s1.className='vazio'; s1.textContent='preencha ao lado';
+      v.appendChild(s1); v.appendChild(document.createElement('span'));
       el.appendChild(v);
     }
   }
-
   function render(){
     var v = {};
     campos.forEach(function(c){ v[c] = ($(c).value || '').trim(); });
-
     $('p-num').textContent = v.numero || '—';
     $('p-data').textContent = brDate(v.data);
     $('p-validade').textContent = maisDias(v.data, v.validade) || '—';
     $('p-cliente').textContent = v.cliente || 'Cliente';
     $('p-contato').textContent = v.contato;
     $('p-meucontato').textContent = v.meucontato;
-
     $('bl-objetivo').style.display = v.objetivo ? '' : 'none';
     $('p-objetivo').textContent = v.objetivo;
-
-    par($('p-grade'), [['Formato', v.formato], ['Quantidade', v.quantidade],
-                       ['Tom', v.tom], ['Material', v.material]]);
-    listaEm($('p-escopo'), v.escopo, 'descreva o escopo ao lado');
-    listaEm($('p-entregaveis'), v.entregaveis, 'liste os entregáveis ao lado');
-    par($('p-cond'), [['Revisões inclusas', v.revisoes], ['Prazo de entrega', v.prazo],
-                      ['Formato de entrega', v.entrega], ['Pagamento', v.pagamento]]);
-
+    par($('p-grade'), [['Formato',v.formato],['Quantidade',v.quantidade],['Tom',v.tom],['Material',v.material]]);
+    listaEm($('p-escopo'), v.escopo, 'escolha um pacote ou clique nas etiquetas');
+    listaEm($('p-entregaveis'), v.entregaveis, 'escolha um pacote ou clique nas etiquetas');
+    par($('p-cond'), [['Revisões inclusas',v.revisoes],['Prazo de entrega',v.prazo],
+                      ['Formato de entrega',v.entrega],['Pagamento',v.pagamento]]);
     $('p-valor').textContent = v.valor || '—';
-    $('p-obs').textContent = v.obs;
+    $('p-obs').textContent = linhas(v.obs).join(' · ');
+    pintaEtiquetas();
   }
 
-  // ---- leitura da colagem vinda da planilha ----
+  /* ---------- leitura da colagem ---------- */
   function normal(s){
-    return (s||'').toLowerCase()
-      .normalize('NFD').replace(/[̀-ͯ]/g,'')
-      .replace(/\s+/g,' ').trim();
+    return (s||'').toLowerCase().normalize('NFD').replace(/[̀-ͯ]/g,'')
+      .replace(/_/g,' ').replace(/\s+/g,' ').trim();
   }
-  var mapa = [
+  var MAPA = [
     ['no do orcamento','numero'], ['n do orcamento','numero'],
-    ['cliente','cliente'],
-    ['contato do cliente','contato'],
+    ['contato do cliente','contato'], ['whatsapp','contato'], ['instagram','contato'],
+    ['cliente','cliente'], ['nome','cliente'],
     ['validade','validade'],
     ['prazo de entrega','prazo'],
     ['rodadas de revisao inclusas','revisoes'],
@@ -322,30 +408,43 @@
     ['formato','formato'], ['quantidade','quantidade'],
     ['objetivo','objetivo'], ['tom','tom'], ['material','material']
   ];
+  var IGNORAR = ['faixa de orcamento','prazo','submitted at','name','value'];
+
+  function separa(linha){
+    if(linha.indexOf('\t') !== -1){
+      var c = linha.split('\t');
+      return [c[0].trim(), c.slice(1).join(' ').trim()];
+    }
+    var dp = linha.match(/^([^:]{2,40}):\s*(.+)$/);
+    if(dp) return [dp[1].trim(), dp[2].trim()];
+    var n = normal(linha);
+    for(var i=0;i<MAPA.length;i++){
+      var rot = MAPA[i][0];
+      if(n.indexOf(rot + ' ') === 0) return [rot, linha.trim().slice(rot.length).trim()];
+    }
+    return ['', linha.trim()];
+  }
   function achaCampo(rotulo){
     var r = normal(rotulo);
-    if(!r) return null;
-    for(var i=0;i<mapa.length;i++){
-      if(r === mapa[i][0] || r.indexOf(mapa[i][0]) === 0) return mapa[i][1];
+    if(!r || IGNORAR.indexOf(r) !== -1) return null;
+    for(var i=0;i<MAPA.length;i++){
+      if(r === MAPA[i][0] || r.indexOf(MAPA[i][0]) === 0) return MAPA[i][1];
     }
     return null;
   }
-
   function lerColagem(){
     var bruto = $('colagem').value;
-    if(!bruto.trim()){ $('status').textContent = 'Cole o bloco da planilha primeiro.'; return; }
+    if(!bruto.trim()){ $('status').textContent = 'Cole alguma coisa primeiro.'; return; }
+    var secao = null, escopo = [], entreg = [], achados = 0, contatos = [];
 
-    var secao = null, escopo = [], entreg = [], achados = 0;
     bruto.split('\n').forEach(function(linha){
-      var cols = linha.split('\t');
-      var a = (cols[0]||'').trim();
-      var b = (cols.slice(1).join(' ')||'').trim();
-      var na = normal(a);
+      if(!linha.trim()) return;
+      var p = separa(linha), a = p[0], b = p[1], na = normal(a);
 
       if(!b){
-        if(na.indexOf('escopo') === 0){ secao = 'escopo'; return; }
-        if(na.indexOf('entregavei') === 0){ secao = 'entregaveis'; return; }
-        if(na.indexOf('condicoes') === 0 || na.indexOf('investimento') === 0){ secao = null; return; }
+        if(na.indexOf('escopo') === 0){ secao='escopo'; return; }
+        if(na.indexOf('entregavei') === 0){ secao='entregaveis'; return; }
+        if(na.indexOf('condicoes') === 0 || na.indexOf('investimento') === 0){ secao=null; return; }
       }
       if(!a && b){
         if(secao === 'escopo') escopo.push(b);
@@ -353,21 +452,22 @@
         return;
       }
       var campo = achaCampo(a);
-      if(campo && b){
-        if(campo === 'validade') b = b.replace(/\D+/g,'') || b;
-        if(campo === 'revisoes') b = b.replace(/\s*rodada.*/i,'') || b;
-        $(campo).value = b;
-        achados++;
-      }
+      if(!campo || !b) return;
+      if(campo === 'validade') b = b.replace(/\D+/g,'') || b;
+      if(campo === 'revisoes') b = b.replace(/\s*rodada.*/i,'') || b;
+      if(campo === 'contato'){ if(contatos.indexOf(b) === -1) contatos.push(b); achados++; return; }
+      $(campo).value = b;
+      achados++;
     });
 
+    if(contatos.length) $('contato').value = contatos.join(' · ');
     if(escopo.length){ $('escopo').value = escopo.join('\n'); achados += escopo.length; }
     if(entreg.length){ $('entregaveis').value = entreg.join('\n'); achados += entreg.length; }
 
     render();
     $('status').textContent = achados
       ? achados + ' campo(s) preenchido(s). Confira antes de imprimir.'
-      : 'Não reconheci nada. Confira se copiou as duas colunas da planilha.';
+      : 'Não reconheci nada. Cole a tabela do e-mail ou as duas colunas da planilha.';
   }
 
   campos.forEach(function(c){
@@ -376,6 +476,8 @@
   });
   $('btnLer').addEventListener('click', lerColagem);
 
+  montaPacotes();
+  Object.keys(ETIQUETAS).forEach(montaEtiquetas);
   $('data').value = hoje();
   render();
 })();

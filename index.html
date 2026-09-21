@@ -72,9 +72,9 @@
   nav.scrolled::before { opacity: 0; }
   .nav-logo { display: flex; align-items: center; position: relative; }
   .nav-logo img { height: 36px; width: auto; display: block; }
-  .nav-cta { font-family: var(--font-display); font-size: 14px; letter-spacing: 0.1em; color: var(--white); background: var(--red); text-decoration: none; padding: 7px 16px; border-radius: 100px; line-height: 1; display: inline-flex; align-items: center; transition: background 0.3s ease, transform 0.3s ease; }
-  .nav-cta:hover { background: #ff3d87; transform: translateY(-1px); }
-  @media (max-width: 640px) { nav { padding: 18px 20px; } .nav-links { gap: 16px; align-items: center; } .nav-links a { font-size: 10px; letter-spacing: 0.1em; } .nav-cta { font-size: 12px; padding: 6px 12px; } }
+  .btn-glow .btn-arrow-icon { background: var(--red); animation: pulsoRiq 2.6s ease-in-out infinite; }
+  @keyframes pulsoRiq { 0%, 100% { box-shadow: 0 0 0 0 rgba(254,12,112,0.42); } 50% { box-shadow: 0 0 20px 5px rgba(254,12,112,0.22); } }
+  @media (prefers-reduced-motion: reduce) { .btn-glow .btn-arrow-icon { animation: none; box-shadow: 0 0 16px 3px rgba(254,12,112,0.25); } }
   .nav-links { display: flex; gap: 40px; position: relative; }
   .nav-links a {
     font-size: 12px;
@@ -792,7 +792,7 @@
     <a href="#portfolio">Portfólio</a>
     <a href="#sobre">Sobre</a>
     <a href="#contato">Contato</a>
-    <a class="nav-cta" href="briefing.html">Briefing</a>
+    
   </div>
 </nav>
 
@@ -819,8 +819,8 @@
     <p class="hero-desc">
       Edição de vídeo e motion design pra <strong>criadores e negócios</strong> que querem crescer nas redes — com identidade, não com fórmula pronta.
     </p>
-    <a href="#portfolio" class="btn-arrow">
-      <span class="btn-arrow-text">Ver trabalhos</span>
+    <a href="briefing.html" class="btn-arrow btn-glow">
+      <span class="btn-arrow-text">Preencher briefing</span>
       <span class="btn-arrow-icon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M5 12h14M12 5l7 7-7 7"/></svg></span>
     </a>
   </div>

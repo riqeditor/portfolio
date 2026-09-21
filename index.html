@@ -296,17 +296,36 @@
     display: flex; align-items: center; gap: 12px;
     margin-bottom: 16px;
   }
-  .kicker-num {
-    width: 30px; height: 30px;
-    border-radius: 50%;
-    border: 1px solid var(--red);
+  .kicker-tc {
+    font-family: ui-monospace, SFMono-Regular, 'SF Mono', Menlo, Consolas, monospace;
+    font-size: 12px;
+    letter-spacing: 0.08em;
+    font-variant-numeric: tabular-nums;
     color: var(--red);
-    font-family: var(--font-display);
-    font-size: 13px;
-    display: flex; align-items: center; justify-content: center;
     flex-shrink: 0;
   }
-  .kicker-line { width: 32px; height: 1px; background: rgba(254,12,112,0.4); flex-shrink: 0; }
+  .kicker-tc .tc-ff { opacity: 0.5; }
+  .kicker-ruler {
+    position: relative;
+    width: 120px; height: 14px;
+    flex-shrink: 0;
+    background:
+      repeating-linear-gradient(to right, rgba(254,12,112,0.45) 0 1px, transparent 1px 12px) left bottom / 100% 6px no-repeat,
+      linear-gradient(rgba(254,12,112,0.28), rgba(254,12,112,0.28)) left bottom / 100% 1px no-repeat;
+  }
+  .kicker-ruler::before {
+    content: '';
+    position: absolute; left: 62%; top: 0;
+    transform: translateX(-4px);
+    border-left: 4px solid transparent;
+    border-right: 4px solid transparent;
+    border-top: 5px solid var(--red);
+  }
+  .kicker-ruler::after {
+    content: '';
+    position: absolute; left: 62%; top: 0; bottom: 0;
+    width: 1px; background: var(--red);
+  }
   .kicker-label { font-size: 11px; letter-spacing: 0.25em; text-transform: uppercase; color: var(--red); }
   .section-title {
     font-family: var(--font-display);
@@ -765,6 +784,7 @@
     .hero-shape-1, .hero-shape-2 { animation: none; }
     body::before { display: none; }
     .hero-sub { flex-direction: column; align-items: flex-start; }
+    .kicker-ruler { width: 56px; }
     .reel { padding: 0 24px 80px; }
     .portfolio { padding: 80px 24px; }
     .grid { grid-template-columns: minmax(0,1fr) minmax(0,1fr); }
@@ -835,7 +855,7 @@
 <section class="portfolio" id="portfolio">
   <div class="section-header">
     <div>
-      <div class="section-kicker"><span class="kicker-num">01</span><span class="kicker-line"></span><span class="kicker-label">Trabalhos</span></div>
+      <div class="section-kicker"><span class="kicker-tc">00:00:01:<span class="tc-ff">00</span></span><span class="kicker-ruler" aria-hidden="true"></span><span class="kicker-label">Trabalhos</span></div>
       <h2 class="section-title">PORT<em>FÓLIO</em></h2>
     </div>
 
@@ -885,7 +905,7 @@
   <div class="about-grid">
     <div>
       <div class="about-tag">
-        <div class="section-kicker"><span class="kicker-num">02</span><span class="kicker-line"></span><span class="kicker-label">Sobre</span></div>
+        <div class="section-kicker"><span class="kicker-tc">00:00:02:<span class="tc-ff">00</span></span><span class="kicker-ruler" aria-hidden="true"></span><span class="kicker-label">Sobre</span></div>
       </div>
       <h2 class="section-title" style="margin-bottom:32px">QUEM<br><em>SOU EU</em></h2>
       <p class="about-text">

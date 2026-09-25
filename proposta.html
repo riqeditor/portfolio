@@ -67,6 +67,29 @@
   .pac:hover{border-color:var(--accent-soft)}
   .pac.on{background:rgba(254,12,112,.14); border-color:var(--accent)}
 
+  /* lista de blocos */
+  .blocos{ list-style:none; margin:0; padding:0; }
+  .blocos li{
+    display:flex; align-items:center; gap:8px;
+    background:var(--bg-input); border:1px solid var(--border-soft);
+    border-radius:9px; padding:7px 9px; margin-bottom:6px;
+    font-size:.8rem; touch-action:none; user-select:none;
+  }
+  .blocos li.arrastando{ opacity:.45; border-color:var(--accent); }
+  .blocos li.oculto .nome{ opacity:.4; text-decoration:line-through; }
+  .blocos .alca{ cursor:grab; color:var(--text-tertiary); font-size:1rem; line-height:1; letter-spacing:-2px; }
+  .blocos .nome{ flex:1; }
+  .blocos button{
+    background:none; border:0; color:var(--text-tertiary); cursor:pointer;
+    font-size:.85rem; padding:2px 5px; line-height:1; border-radius:5px;
+  }
+  .blocos button:hover{ color:var(--accent); background:rgba(254,12,112,.1); }
+  .assina{
+    margin-top:26px; padding-top:10px; border-top:1px solid var(--rule);
+    width:230px; font-size:.76rem; color:var(--ink-soft);
+  }
+  .assina:empty, .assina span:empty{ display:none; }
+
   /* papel */
   .paper-wrap{display:flex; justify-content:center}
   .paper{background:var(--paper); color:var(--ink); width:100%; max-width:780px;
@@ -112,6 +135,7 @@
     .brand{font-size:2.9rem}
     .valor .num{font-size:2.6rem}
     .bloco{break-inside:avoid}
+    .assina{break-inside:avoid}
   }
 </style>
 </head>
@@ -129,6 +153,13 @@
       <textarea id="colagem" placeholder="Nome&#9;Camila Ferraz&#10;Formato&#9;Vertical 9:16&#10;..."></textarea>
       <button class="btn ghost" id="btnLer">Ler colagem e preencher</button>
       <p class="ok" id="status"></p>
+    </div>
+
+    <div class="card">
+      <h2>Blocos da proposta</h2>
+      <ul class="blocos" id="listaBlocos"></ul>
+      <p class="nota" style="margin:10px 0 0">Arraste pela alça para reordenar. O olho esconde o bloco sem apagar o que você escreveu.</p>
+      <button class="btn ghost" id="btnResetBlocos" style="margin-top:10px">Voltar à ordem padrão</button>
     </div>
 
     <div class="card">
@@ -151,6 +182,7 @@
         <div><label>Validade <span class="hint">dias</span></label><input id="validade" type="number" value="7" min="1"></div>
         <div><label>Seus contatos</label><input id="meucontato" placeholder="whatsapp · e-mail"></div>
       </div>
+      <label>Assinatura do rodapé <span class="hint">opcional</span></label><input id="assina" placeholder="Henrique Leite · RIQ">
       <label>Cliente</label><input id="cliente" placeholder="Nome do cliente ou empresa">
       <label>Contato do cliente</label><input id="contato" placeholder="whatsapp, e-mail ou @">
     </div>
@@ -209,33 +241,38 @@
         <div class="quem" id="p-cliente">Cliente</div>
         <div class="contato" id="p-contato"></div>
       </div>
-      <div class="bloco" id="bl-objetivo">
-        <p class="sec">Objetivo</p><p id="p-objetivo"></p>
+      <div id="corpo">
+        <section class="bloco" data-bloco="objetivo" id="bl-objetivo">
+          <p class="sec">Objetivo</p><p id="p-objetivo"></p>
+        </section>
+        <section class="bloco" data-bloco="projeto">
+          <p class="sec">O projeto</p><div class="grade" id="p-grade"></div>
+        </section>
+        <section class="bloco" data-bloco="escopo">
+          <p class="sec">Escopo</p><ul id="p-escopo"></ul>
+        </section>
+        <section class="bloco" data-bloco="entregaveis">
+          <p class="sec">Entregáveis</p><ul id="p-entregaveis"></ul>
+        </section>
+        <section class="bloco" data-bloco="condicoes">
+          <p class="sec">Condições</p><div class="grade" id="p-cond"></div>
+        </section>
+        <section class="bloco bloco-valor" data-bloco="investimento">
+          <div class="valor">
+            <span class="rot">Investimento</span>
+            <span class="valor-dir">
+              <span class="calc" id="p-calc"></span>
+              <span class="num" id="p-valor">—</span>
+            </span>
+          </div>
+          <p class="obs" id="p-obs"></p>
+        </section>
       </div>
-      <div class="bloco">
-        <p class="sec">O projeto</p><div class="grade" id="p-grade"></div>
-      </div>
-      <div class="bloco">
-        <p class="sec">Escopo</p><ul id="p-escopo"></ul>
-      </div>
-      <div class="bloco">
-        <p class="sec">Entregáveis</p><ul id="p-entregaveis"></ul>
-      </div>
-      <div class="bloco">
-        <p class="sec">Condições</p><div class="grade" id="p-cond"></div>
-      </div>
-      <div class="valor">
-        <span class="rot">Investimento</span>
-        <span class="valor-dir">
-          <span class="calc" id="p-calc"></span>
-          <span class="num" id="p-valor">—</span>
-        </span>
-      </div>
-      <p class="obs" id="p-obs"></p>
       <footer class="rodape">
         <span>Valor referente ao escopo descrito. Alteração de escopo gera nova proposta.</span>
         <span id="p-meucontato"></span>
       </footer>
+      <div class="assina" id="bl-assina"><span id="p-assina"></span></div>
     </article>
   </main>
 </div>
@@ -245,7 +282,7 @@
   var $ = function(id){ return document.getElementById(id); };
   var campos = ['numero','data','validade','meucontato','cliente','contato','formato','quantidade',
                 'tom','material','objetivo','escopo','entregaveis','revisoes','prazo','entrega',
-                'pagamento','valor','obs','qtd','unitario'];
+                'pagamento','valor','obs','qtd','unitario','assina'];
 
   /* ---------- etiquetas clicáveis ---------- */
   var ETIQUETAS = {
@@ -404,7 +441,11 @@
     $('p-cliente').textContent = v.cliente || 'Cliente';
     $('p-contato').textContent = v.contato;
     $('p-meucontato').textContent = v.meucontato;
-    $('bl-objetivo').style.display = v.objetivo ? '' : 'none';
+    document.querySelectorAll('#corpo .bloco').forEach(function(b){
+      b.style.display = b.dataset.oculto === '1' ? 'none' : '';
+    });
+    $('p-assina').textContent = v.assina;
+    if(!v.objetivo) $('bl-objetivo').style.display = 'none';
     $('p-objetivo').textContent = v.objetivo;
     par($('p-grade'), [['Formato',v.formato],['Quantidade',v.quantidade],['Tom',v.tom],['Material',v.material]]);
     listaEm($('p-escopo'), v.escopo, 'escolha um pacote ou clique nas etiquetas');
@@ -508,12 +549,130 @@
   }
 
   $('quantidade').addEventListener('change', function(){ sincronizaQtd(); render(); });
+  /* ---------- blocos movíveis ---------- */
+  var BLOCOS = [
+    ['objetivo','Objetivo'], ['projeto','O projeto'], ['escopo','Escopo'],
+    ['entregaveis','Entregáveis'], ['condicoes','Condições'], ['investimento','Investimento']
+  ];
+  var CHAVE = 'riq-proposta-layout';
+  var layout = BLOCOS.map(function(b){ return { id: b[0], visivel: true }; });
+
+  function nomeDe(id){
+    for (var i=0;i<BLOCOS.length;i++) if (BLOCOS[i][0] === id) return BLOCOS[i][1];
+    return id;
+  }
+  function salvarLayout(){
+    try { localStorage.setItem(CHAVE, JSON.stringify(layout)); } catch(e) {}
+  }
+  function carregarLayout(){
+    try {
+      var bruto = localStorage.getItem(CHAVE);
+      if(!bruto) return;
+      var lido = JSON.parse(bruto);
+      if(!Array.isArray(lido)) return;
+      var validos = lido.filter(function(x){ return x && BLOCOS.some(function(b){ return b[0] === x.id; }); });
+      BLOCOS.forEach(function(b){
+        if(!validos.some(function(x){ return x.id === b[0]; })) validos.push({ id: b[0], visivel: true });
+      });
+      layout = validos;
+    } catch(e) {}
+  }
+  function aplicaLayout(){
+    var corpo = $('corpo');
+    layout.forEach(function(item){
+      var el = corpo.querySelector('[data-bloco="' + item.id + '"]');
+      if(!el) return;
+      corpo.appendChild(el);
+      el.dataset.oculto = item.visivel ? '' : '1';
+    });
+    render();
+  }
+  function montaLista(){
+    var ul = $('listaBlocos');
+    ul.innerHTML = '';
+    layout.forEach(function(item, idx){
+      var li = document.createElement('li');
+      li.dataset.id = item.id;
+      if(!item.visivel) li.className = 'oculto';
+
+      var alca = document.createElement('span');
+      alca.className = 'alca'; alca.textContent = '⣿'; alca.title = 'arraste';
+      li.appendChild(alca);
+
+      var nome = document.createElement('span');
+      nome.className = 'nome'; nome.textContent = nomeDe(item.id);
+      li.appendChild(nome);
+
+      [['↑', -1], ['↓', 1]].forEach(function(par){
+        var b = document.createElement('button');
+        b.type = 'button'; b.textContent = par[0]; b.title = 'mover';
+        b.addEventListener('click', function(){ mover(idx, idx + par[1]); });
+        li.appendChild(b);
+      });
+
+      var olho = document.createElement('button');
+      olho.type = 'button'; olho.textContent = item.visivel ? '👁' : '🚫';
+      olho.title = item.visivel ? 'esconder' : 'mostrar';
+      olho.addEventListener('click', function(){
+        item.visivel = !item.visivel; salvarLayout(); montaLista(); aplicaLayout();
+      });
+      li.appendChild(olho);
+
+      alca.addEventListener('pointerdown', function(ev){ iniciaArraste(ev, li); });
+      ul.appendChild(li);
+    });
+  }
+  function mover(de, para){
+    if(para < 0 || para >= layout.length) return;
+    var item = layout.splice(de, 1)[0];
+    layout.splice(para, 0, item);
+    salvarLayout(); montaLista(); aplicaLayout();
+  }
+
+  var arrastando = null;
+  function iniciaArraste(ev, li){
+    ev.preventDefault();
+    arrastando = li;
+    li.classList.add('arrastando');
+    li.setPointerCapture && li.setPointerCapture(ev.pointerId);
+    document.addEventListener('pointermove', moveArraste);
+    document.addEventListener('pointerup', soltaArraste, { once: true });
+  }
+  function moveArraste(ev){
+    if(!arrastando) return;
+    var alvo = document.elementFromPoint(ev.clientX, ev.clientY);
+    if(!alvo) return;
+    alvo = alvo.closest ? alvo.closest('.blocos li') : null;
+    if(!alvo || alvo === arrastando || alvo.parentElement !== arrastando.parentElement) return;
+    var itens = [...arrastando.parentElement.children];
+    var iA = itens.indexOf(arrastando), iB = itens.indexOf(alvo);
+    if(iA < iB) alvo.after(arrastando); else alvo.before(arrastando);
+  }
+  function soltaArraste(){
+    if(!arrastando) return;
+    arrastando.classList.remove('arrastando');
+    document.removeEventListener('pointermove', moveArraste);
+    arrastando = null;
+    var ordem = [...$('listaBlocos').children].map(function(li){ return li.dataset.id; });
+    layout.sort(function(a, b){ return ordem.indexOf(a.id) - ordem.indexOf(b.id); });
+    salvarLayout(); montaLista(); aplicaLayout();
+  }
+
+  $('btnResetBlocos').addEventListener('click', function(){
+    layout = BLOCOS.map(function(b){ return { id: b[0], visivel: true }; });
+    salvarLayout(); montaLista(); aplicaLayout();
+    $('status').textContent = 'Ordem padrão restaurada.';
+  });
+
   campos.forEach(function(c){
     $(c).addEventListener('input', render);
     $(c).addEventListener('change', render);
   });
   $('btnLer').addEventListener('click', lerColagem);
 
+  carregarLayout();
+  montaLista();
+  aplicaLayout();
   montaPacotes();
   Object.keys(ETIQUETAS).forEach(montaEtiquetas);
   $('data').value = hoje();

@@ -1,0 +1,607 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<meta name="robots" content="noindex">
+<title>Gerador de contrato — RIQ (uso interno)</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Bebas+Neue&family=DM+Sans:wght@400;500;700&display=swap" rel="stylesheet">
+<style>
+  :root{
+    --bg:#080808; --bg-card:#111111; --bg-input:#181818;
+    --text:#f0ede8; --text-soft:#a9a6a1; --text-tertiary:#767676;
+    --accent:#FE0C70; --accent-soft:#ff4d92; --accent-dim:#8B063D;
+    --border-soft:rgba(254,12,112,0.22);
+    --paper:#ffffff; --ink:#101010; --ink-soft:#6b6b6b; --rule:#e8e6e2;
+    --radius:14px;
+    --font-display:'Bebas Neue',sans-serif; --font-body:'DM Sans',sans-serif;
+  }
+  *{box-sizing:border-box}
+  body{margin:0; background:var(--bg); color:var(--text); font-family:var(--font-body);
+       line-height:1.5; -webkit-font-smoothing:antialiased}
+  a{color:var(--accent-soft)}
+  .shell{display:block; padding:24px 20px 72px; max-width:860px; margin:0 auto}
+  .editor{margin-bottom:34px}
+  .pular{display:block; text-align:center; text-decoration:none; font-size:.78rem; font-weight:500;
+         color:var(--accent-soft); background:var(--bg-card); border:1px solid var(--border-soft);
+         border-radius:100px; padding:11px; margin:0 0 20px}
+  .pular:hover{border-color:var(--accent); color:var(--text)}
+
+  .editor h1{font-family:var(--font-display); font-size:1.9rem; letter-spacing:.02em; margin:0 0 2px}
+  .tag{display:inline-block; font-size:.66rem; font-weight:600; letter-spacing:.06em; text-transform:uppercase;
+       background:rgba(254,12,112,.15); color:var(--accent-soft); padding:4px 10px; border-radius:100px; margin-bottom:10px}
+  .editor .lead{color:var(--text-soft); font-size:.85rem; margin:0 0 20px}
+  .card{background:var(--bg-card); border:1px solid var(--border-soft); border-radius:var(--radius); padding:18px; margin-bottom:16px}
+  .card h2{font-family:var(--font-display); font-size:.95rem; text-transform:uppercase; letter-spacing:.12em;
+           color:var(--accent); margin:0 0 12px}
+  label{display:block; font-size:.78rem; font-weight:500; margin:0 0 4px}
+  .hint{font-size:.7rem; color:var(--text-tertiary); font-weight:400}
+  input,textarea{width:100%; background:var(--bg-input); border:1px solid var(--border-soft); border-radius:9px;
+    padding:9px 11px; color:var(--text); font-family:var(--font-body); font-size:.9rem; margin-bottom:11px}
+  textarea{resize:vertical; min-height:74px; line-height:1.45}
+  input:focus,textarea:focus{outline:none; border-color:var(--accent)}
+  input[type=file]{padding:14px 11px; font-size:.8rem; cursor:pointer; color:var(--text-soft)}
+  input[type=file]::file-selector-button{
+    background:var(--accent); color:#fff; border:0; border-radius:100px;
+    padding:7px 14px; margin-right:11px; font-family:var(--font-body); font-size:.78rem;
+    font-weight:600; cursor:pointer}
+  .row2{display:grid; grid-template-columns:1fr 1fr; gap:10px}
+  .btn{width:100%; background:var(--accent); color:#fff; border:0; border-radius:100px;
+       padding:13px 18px; font-family:var(--font-display); font-size:1.15rem; letter-spacing:.06em; cursor:pointer}
+  .btn.ghost{background:transparent; color:var(--accent-soft); border:1px solid var(--border-soft)}
+  .btn[disabled]{opacity:.4; cursor:not-allowed}
+  .nota{font-size:.72rem; color:var(--text-tertiary); line-height:1.6; margin-top:14px}
+  .ok{color:#4ade80; font-size:.75rem; min-height:1.2em; margin:8px 0 0}
+  .ok.erro{color:var(--accent-soft)}
+
+  .campo-botao{display:flex; gap:6px; align-items:flex-start}
+  .campo-botao input{flex:1}
+  .mini{background:var(--bg-input); border:1px solid var(--border-soft); color:var(--accent);
+    border-radius:9px; padding:9px 12px; font-family:var(--font-body); font-size:.78rem;
+    font-weight:600; cursor:pointer; white-space:nowrap; line-height:1.2}
+  .mini:hover{border-color:var(--accent); background:rgba(254,12,112,.1)}
+
+  .marcas{display:flex; flex-wrap:wrap; gap:6px; margin:10px 0 0}
+  .marca{background:var(--bg-input); border:1px solid var(--border-soft); color:var(--text-soft);
+    border-radius:7px; padding:5px 9px; font-size:.7rem; font-family:ui-monospace,SFMono-Regular,Menlo,monospace;
+    cursor:pointer; line-height:1.3}
+  .marca:hover{border-color:var(--accent-soft); color:var(--text)}
+  .falta{color:var(--accent-soft); font-size:.72rem; margin:6px 0 0}
+
+  /* papel */
+  .paper-wrap{display:block}
+  .paper{background:var(--paper); color:var(--ink); width:100%; max-width:820px; margin:0 auto;
+         border-radius:6px; padding:56px 60px 52px; font-size:13.5px; line-height:1.7}
+  @media (max-width:600px){ .paper{padding:32px 26px 30px} }
+  .paper .doc-p{margin:0 0 10px; text-align:justify}
+  .paper .doc-p.forte{font-weight:700; text-align:left; margin-top:18px}
+  .paper .doc-p.centro{text-align:center}
+  .paper .doc-p.vazia{height:8px; margin:0}
+  .paper .pendente{background:rgba(254,12,112,.14); color:var(--accent-dim);
+    border-radius:4px; padding:0 4px; font-weight:600}
+  .vazio{color:#b9b3c7; font-style:italic}
+  .topo-papel{display:flex; justify-content:space-between; align-items:baseline;
+    border-bottom:3px solid var(--accent); padding-bottom:12px; margin-bottom:26px}
+  .topo-papel .brand{font-family:var(--font-display); font-size:2.1rem; color:var(--accent); line-height:1}
+  .topo-papel .n{font-size:.75rem; color:var(--ink-soft)}
+
+  @page{ size:A4; margin:18mm }
+  @media print{
+    body{background:#fff}
+    .editor,.no-print{display:none !important}
+    .shell{display:block; padding:0; max-width:none}
+    .paper{max-width:none; padding:0; border-radius:0; font-size:11pt; color:var(--ink)}
+    .paper .pendente{background:none; color:var(--ink); border:1px solid var(--rule)}
+    .paper .doc-p{break-inside:avoid}
+  }
+</style>
+</head>
+<body>
+<div class="shell">
+  <aside class="editor" id="topo">
+    <span class="tag">uso interno</span>
+    <h1>Gerador de contrato</h1>
+    <p class="lead">O modelo não é enviado para lugar nenhum. O arquivo é lido aqui dentro do navegador e some quando você fecha a aba. <a href="proposta.html">Ir para o gerador de proposta</a></p>
+
+    <a class="pular no-print" href="#papel">Ver a pr&#233;via do contrato &#8595;</a>
+
+    <div class="card">
+      <h2>Modelo</h2>
+      <label>Seu contrato em .docx <span class="hint">fica só nesta aba</span></label>
+      <input type="file" id="arquivo" accept=".docx,application/vnd.openxmlformats-officedocument.wordprocessingml.document">
+      <p class="ok" id="status"></p>
+      <button class="btn ghost" id="btnAjuda" style="margin-top:10px">Como marcar os campos no modelo</button>
+      <div id="ajuda" style="display:none">
+        <p class="nota">No seu contrato, troque cada espaço em branco por uma marca entre chaves duplas. Onde estiver <b>{{RAZAO_SOCIAL}}</b>, entra o que você digitar aqui. Escreva a marca de uma vez só, sem formatar no meio.</p>
+        <div class="marcas" id="sugestoes"></div>
+        <button class="btn ghost" id="btnCopiar" style="margin-top:12px">Copiar a lista de marcas</button>
+      </div>
+    </div>
+
+    <div class="card" id="cardCampos" style="display:none">
+      <h2>Contratante</h2>
+      <div id="campos"></div>
+      <p class="nota" id="notaCampos"></p>
+    </div>
+
+    <div class="card" id="cardExporta" style="display:none">
+      <h2>Exportar</h2>
+      <p class="falta" id="falta"></p>
+      <button class="btn" id="btnDocx">Baixar .docx preenchido</button>
+      <button class="btn ghost" id="btnPdf" style="margin-top:9px">Imprimir / salvar em PDF</button>
+      <p class="nota">O <b>.docx</b> sai idêntico ao seu modelo — mesma formatação, cabeçalho, rodapé e numeração das cláusulas. O <b>PDF</b> sai da prévia ao lado, que mostra o texto mas não reproduz a diagramação do Word. Para um PDF fiel, baixe o .docx e imprima por lá.</p>
+    </div>
+  </aside>
+
+  <main class="paper-wrap">
+    <a class="pular no-print" href="#topo">&#8593; Voltar para o formul&#225;rio</a>
+    <article class="paper" id="papel">
+      <p class="vazio">Escolha o modelo .docx para ver a prévia aqui.</p>
+    </article>
+  </main>
+</div>
+
+<script src="https://cdnjs.cloudflare.com/ajax/libs/jszip/3.10.1/jszip.min.js"></script>
+<script>
+(function(){
+  var $ = function(id){ return document.getElementById(id); };
+
+  /* ---------- campos conhecidos ---------- */
+  var ROTULOS = {
+    RAZAO_SOCIAL:'Razão social ou nome', NOME:'Nome', CLIENTE:'Cliente',
+    CONTRATANTE:'Contratante', NACIONALIDADE:'Nacionalidade', ESTADO_CIVIL:'Estado civil',
+    PROFISSAO:'Profissão', CNPJ:'CNPJ', CPF:'CPF', CNPJ_CPF:'CNPJ ou CPF',
+    RG:'RG', INSCRICAO_ESTADUAL:'Inscrição estadual',
+    ENDERECO:'Endereço', NUMERO_ENDERECO:'Número', COMPLEMENTO:'Complemento',
+    BAIRRO:'Bairro', CIDADE:'Cidade', ESTADO:'Estado', UF:'UF', CEP:'CEP',
+    REPRESENTANTE:'Representante legal', CARGO:'Cargo do representante',
+    EMAIL:'E-mail', TELEFONE:'Telefone',
+    OBJETO:'Objeto do contrato', ESCOPO:'Escopo do trabalho', ENTREGAVEIS:'Entregáveis',
+    PRAZO:'Prazo de execução', REVISOES:'Revisões inclusas', ENTREGA:'Formato de entrega',
+    VALOR:'Valor', VALOR_EXTENSO:'Valor por extenso', PAGAMENTO:'Condições de pagamento',
+    VIGENCIA:'Vigência', MULTA:'Multa', FORO:'Foro',
+    DATA:'Data', DATA_EXTENSO:'Data por extenso', CIDADE_ASSINATURA:'Cidade da assinatura',
+    NUMERO:'Nº do contrato', CONTRATO:'Nº do contrato', PROPOSTA:'Nº da proposta',
+    TESTEMUNHA_1:'Testemunha 1', TESTEMUNHA_2:'Testemunha 2',
+    OBSERVACOES:'Observações'
+  };
+  var GRANDES = ['OBJETO','ESCOPO','ENTREGAVEIS','PAGAMENTO','OBSERVACOES','CLAUSULAS','VIGENCIA'];
+  var SUGESTOES = ['RAZAO_SOCIAL','CNPJ_CPF','ENDERECO','CIDADE','UF','CEP','REPRESENTANTE',
+                   'EMAIL','TELEFONE','OBJETO','ESCOPO','ENTREGAVEIS','PRAZO','VALOR',
+                   'VALOR_EXTENSO','PAGAMENTO','FORO','DATA_EXTENSO','NUMERO'];
+
+  /* ---------- estado ---------- */
+  var zip = null, partes = [], chaves = [], valores = {}, nomeOrig = '';
+  var ALVOS = /^word\/(document|header\d*|footer\d*)\.xml$/;
+  var RE_MARCA = /\{\{\s*([A-Za-z0-9_À-ÿ][A-Za-z0-9_À-ÿ ]{0,58})\s*\}\}/g;
+  var RE_T = /(<w:t\b[^>]*>)([\s\S]*?)(<\/w:t>)/g;
+  var RE_P = /<w:p(?:\s[^>]*)?>[\s\S]*?<\/w:p>/g;
+
+  function chaveDe(bruto){
+    return bruto.trim().toUpperCase().replace(/\s+/g,'_');
+  }
+  function escapa(s){
+    return String(s).replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;');
+  }
+  function paraXml(s){
+    var linhas = String(s).split(/\r?\n/).map(escapa);
+    return linhas.join('</w:t><w:br/><w:t xml:space="preserve">');
+  }
+
+  /* ---------- substituição dentro do .docx ---------- */
+  function trocaNoParagrafo(pXml, resolve){
+    var nos = [], m;
+    RE_T.lastIndex = 0;
+    while((m = RE_T.exec(pXml))){
+      nos.push({ abre:m[1], txt:m[2], fecha:m[3], ini:m.index, fim:m.index + m[0].length });
+    }
+    if(!nos.length) return pXml;
+
+    var offs = [], acc = 0, i;
+    for(i=0;i<nos.length;i++){ offs.push(acc); acc += nos[i].txt.length; }
+    var inteiro = nos.map(function(n){ return n.txt; }).join('');
+    if(inteiro.indexOf('{{') === -1) return pXml;
+
+    var achados = [], mm;
+    RE_MARCA.lastIndex = 0;
+    while((mm = RE_MARCA.exec(inteiro))){
+      achados.push({ ini:mm.index, fim:mm.index + mm[0].length, chave:chaveDe(mm[1]) });
+    }
+    if(!achados.length) return pXml;
+
+    var edits = nos.map(function(){ return []; });
+    achados.forEach(function(a){
+      var primeiro = true, valor = resolve(a.chave);
+      for(var j=0;j<nos.length;j++){
+        var ini = offs[j], fim = ini + nos[j].txt.length;
+        if(fim <= a.ini || ini >= a.fim) continue;
+        edits[j].push({
+          li: Math.max(a.ini, ini) - ini,
+          lf: Math.min(a.fim, fim) - ini,
+          txt: primeiro ? valor : ''
+        });
+        primeiro = false;
+      }
+    });
+
+    var saida = pXml, k;
+    for(k = nos.length - 1; k >= 0; k--){
+      if(!edits[k].length) continue;
+      var t = nos[k].txt;
+      edits[k].sort(function(x,y){ return y.li - x.li; });
+      edits[k].forEach(function(e){ t = t.slice(0, e.li) + e.txt + t.slice(e.lf); });
+      var abre = nos[k].abre;
+      if(abre.indexOf('xml:space') === -1) abre = abre.replace(/\/?>$/, ' xml:space="preserve">');
+      saida = saida.slice(0, nos[k].ini) + abre + t + nos[k].fecha + saida.slice(nos[k].fim);
+    }
+    return saida;
+  }
+
+  function processa(xml, resolve){
+    return xml.replace(RE_P, function(p){ return trocaNoParagrafo(p, resolve); });
+  }
+
+  function resolvedorFinal(chave){
+    var v = valores[chave];
+    return (v === undefined || v === '') ? '' : paraXml(v);
+  }
+  function resolvedorPrevia(chave){
+    var v = valores[chave];
+    if(v === undefined || v === '') return '«' + chave + '»';
+    return paraXml(v);
+  }
+
+  /* ---------- leitura das chaves ---------- */
+  function coletaChaves(){
+    var vistos = {}, ordem = [];
+    partes.sort(function(a,b){
+      var pa = a.path.indexOf('document') !== -1 ? 0 : 1;
+      var pb = b.path.indexOf('document') !== -1 ? 0 : 1;
+      return pa - pb;
+    });
+    partes.forEach(function(p){
+      var nos = [], m;
+      RE_T.lastIndex = 0;
+      var texto = '';
+      while((m = RE_T.exec(p.xml))) texto += m[2];
+      RE_MARCA.lastIndex = 0;
+      var mm;
+      while((mm = RE_MARCA.exec(texto))){
+        var c = chaveDe(mm[1]);
+        if(!vistos[c]){ vistos[c] = 1; ordem.push(c); }
+      }
+    });
+    return ordem;
+  }
+
+  /* ---------- número por extenso ---------- */
+  var U = ['','um','dois','três','quatro','cinco','seis','sete','oito','nove','dez','onze','doze',
+           'treze','quatorze','quinze','dezesseis','dezessete','dezoito','dezenove'];
+  var D = ['','','vinte','trinta','quarenta','cinquenta','sessenta','setenta','oitenta','noventa'];
+  var C = ['','cento','duzentos','trezentos','quatrocentos','quinhentos','seiscentos','setecentos','oitocentos','novecentos'];
+  function ate999(n){
+    if(n === 100) return 'cem';
+    var t = '', c = Math.floor(n/100), r = n % 100;
+    if(c) t = C[c];
+    if(r){
+      if(t) t += ' e ';
+      if(r < 20) t += U[r];
+      else { t += D[Math.floor(r/10)]; if(r % 10) t += ' e ' + U[r % 10]; }
+    }
+    return t;
+  }
+  function inteiroExtenso(n){
+    if(n === 0) return 'zero';
+    var blocos = [], mi = Math.floor(n/1000000), mil = Math.floor((n % 1000000)/1000), res = n % 1000;
+    if(mi) blocos.push(mi === 1 ? 'um milhão' : ate999(mi) + ' milhões');
+    if(mil) blocos.push(mil === 1 ? 'mil' : ate999(mil) + ' mil');
+    if(res) blocos.push(ate999(res));
+    if(blocos.length === 1) return blocos[0];
+    var ultimo = blocos.pop();
+    return blocos.join(', ') + ' e ' + ultimo;
+  }
+  function num(v){
+    var t = String(v||'').replace(/[^\d,.]/g,'').trim();
+    if(!t) return 0;
+    if(t.indexOf(',') !== -1) t = t.replace(/\./g,'').replace(',','.');
+    else if(/^\d{1,3}(\.\d{3})+$/.test(t)) t = t.replace(/\./g,'');
+    var n = parseFloat(t);
+    return isNaN(n) ? 0 : n;
+  }
+  function brl(n){ return n.toLocaleString('pt-BR', { style:'currency', currency:'BRL' }); }
+  function valorExtenso(v){
+    var n = Math.round(num(v) * 100) / 100;
+    if(!n) return '';
+    var inteiro = Math.floor(n), cent = Math.round((n - inteiro) * 100), s = '';
+    if(inteiro) s = inteiroExtenso(inteiro) + (inteiro === 1 ? ' real' : ' reais');
+    if(cent) s += (s ? ' e ' : '') + inteiroExtenso(cent) + (cent === 1 ? ' centavo' : ' centavos');
+    return s;
+  }
+  var MESES = ['janeiro','fevereiro','março','abril','maio','junho','julho',
+               'agosto','setembro','outubro','novembro','dezembro'];
+  function dataExtenso(iso){
+    var d = iso ? new Date(iso + 'T12:00:00') : new Date();
+    if(isNaN(d.getTime())) d = new Date();
+    return d.getDate() + ' de ' + MESES[d.getMonth()] + ' de ' + d.getFullYear();
+  }
+  function hoje(){
+    var d = new Date(), p = function(n){ return String(n).padStart(2,'0'); };
+    return d.getFullYear() + '-' + p(d.getMonth()+1) + '-' + p(d.getDate());
+  }
+
+  /* ---------- máscaras ---------- */
+  function soDigitos(s){ return String(s||'').replace(/\D/g,''); }
+  function mascaraDoc(s){
+    var d = soDigitos(s);
+    if(d.length === 11) return d.replace(/(\d{3})(\d{3})(\d{3})(\d{2})/, '$1.$2.$3-$4');
+    if(d.length === 14) return d.replace(/(\d{2})(\d{3})(\d{3})(\d{4})(\d{2})/, '$1.$2.$3/$4-$5');
+    return s;
+  }
+  function mascaraCep(s){
+    var d = soDigitos(s);
+    return d.length === 8 ? d.replace(/(\d{5})(\d{3})/, '$1-$2') : s;
+  }
+
+  /* ---------- numeração ---------- */
+  var PREFIXO = 'VK', CHAVE_SEQ = 'riq-proposta-seq', SEMENTE = 9830;
+  function proximoNumero(atual){
+    var n = 0;
+    try { n = parseInt(localStorage.getItem(CHAVE_SEQ), 10) || 0; } catch(e){}
+    var m = String(atual || '').match(/^VK(\d{3,6})$/i);
+    if(m){ var dc = parseInt(m[1], 10); if(dc > n) n = dc; }
+    if(!n) n = SEMENTE;
+    var prox = n + 1;
+    try { localStorage.setItem(CHAVE_SEQ, String(prox)); } catch(e){}
+    return PREFIXO + String(prox).padStart(5, '0');
+  }
+
+  /* ---------- formulário ---------- */
+  function rotuloDe(c){
+    if(ROTULOS[c]) return ROTULOS[c];
+    return c.charAt(0) + c.slice(1).toLowerCase().replace(/_/g, ' ');
+  }
+  function montaCampos(){
+    var box = $('campos');
+    box.innerHTML = '';
+    chaves.forEach(function(c){
+      var wrap = document.createElement('div');
+      var lab = document.createElement('label');
+      lab.textContent = rotuloDe(c);
+      var dica = document.createElement('span');
+      dica.className = 'hint';
+      dica.textContent = ' {{' + c + '}}';
+      lab.appendChild(dica);
+      wrap.appendChild(lab);
+
+      var el;
+      if(GRANDES.indexOf(c) !== -1){
+        el = document.createElement('textarea');
+        el.placeholder = 'uma linha por item';
+      } else {
+        el = document.createElement('input');
+        if(c === 'DATA') el.type = 'date';
+      }
+      el.id = 'f-' + c;
+      el.addEventListener('input', function(){
+        valores[c] = el.value;
+        derivados(c);
+        agenda();
+      });
+      el.addEventListener('blur', function(){
+        var antes = el.value;
+        if(c === 'CNPJ' || c === 'CPF' || c === 'CNPJ_CPF') el.value = mascaraDoc(antes);
+        if(c === 'CEP') el.value = mascaraCep(antes);
+        if(c === 'VALOR' && num(antes)) el.value = brl(num(antes));
+        if(el.value !== antes){ valores[c] = el.value; derivados(c); agenda(); }
+      });
+
+      if(c === 'NUMERO' || c === 'CONTRATO' || c === 'PROPOSTA'){
+        var linha = document.createElement('div');
+        linha.className = 'campo-botao';
+        var bt = document.createElement('button');
+        bt.type = 'button'; bt.className = 'mini'; bt.textContent = 'gerar';
+        bt.addEventListener('click', function(){
+          el.value = proximoNumero(el.value);
+          valores[c] = el.value; agenda();
+        });
+        linha.appendChild(el); linha.appendChild(bt);
+        wrap.appendChild(linha);
+      } else {
+        wrap.appendChild(el);
+      }
+      box.appendChild(wrap);
+
+      if(c === 'DATA'){ el.value = hoje(); valores[c] = el.value; derivados(c); }
+      if(c === 'DATA_EXTENSO' && !valores[c]){ el.value = dataExtenso(''); valores[c] = el.value; }
+      if(c === 'CIDADE_ASSINATURA' && !valores[c]){ el.value = 'Jundiaí/SP'; valores[c] = el.value; }
+      if(c === 'FORO' && !valores[c]){ el.value = 'Jundiaí/SP'; valores[c] = el.value; }
+    });
+    $('notaCampos').textContent = chaves.length + ' campo(s) encontrado(s) no seu modelo. Os que ficarem em branco saem em branco no contrato.';
+  }
+  function derivados(origem){
+    if(origem === 'VALOR' && chaves.indexOf('VALOR_EXTENSO') !== -1){
+      var alvo = $('f-VALOR_EXTENSO');
+      if(alvo && !alvo.dataset.tocado){
+        alvo.value = valorExtenso(valores.VALOR);
+        valores.VALOR_EXTENSO = alvo.value;
+      }
+    }
+    if(origem === 'DATA' && chaves.indexOf('DATA_EXTENSO') !== -1){
+      var ad = $('f-DATA_EXTENSO');
+      if(ad && !ad.dataset.tocado){
+        ad.value = dataExtenso(valores.DATA);
+        valores.DATA_EXTENSO = ad.value;
+      }
+    }
+  }
+
+  /* ---------- prévia ---------- */
+  function previa(){
+    var doc = partes.filter(function(p){ return p.path.indexOf('document') !== -1; })[0];
+    var papel = $('papel');
+    if(!doc){ return; }
+    var xml = processa(doc.xml, resolvedorPrevia);
+    var dom;
+    try { dom = new DOMParser().parseFromString(xml, 'application/xml'); }
+    catch(e){ return; }
+    if(dom.getElementsByTagName('parsererror').length){ return; }
+
+    papel.innerHTML = '';
+    var topo = document.createElement('div');
+    topo.className = 'topo-papel';
+    var marca = document.createElement('div');
+    marca.className = 'brand'; marca.textContent = 'RIQ';
+    var n = document.createElement('div');
+    n.className = 'n';
+    n.textContent = valores.NUMERO || valores.CONTRATO || '';
+    topo.appendChild(marca); topo.appendChild(n);
+    papel.appendChild(topo);
+
+    var ps = dom.getElementsByTagNameNS('*','p');
+    for(var i=0;i<ps.length;i++){
+      var p = ps[i];
+      var ts = p.getElementsByTagNameNS('*','t');
+      var txt = '';
+      for(var j=0;j<ts.length;j++) txt += ts[j].textContent;
+      var el = document.createElement('p');
+      el.className = 'doc-p';
+      if(!txt.trim()){ el.className += ' vazia'; papel.appendChild(el); continue; }
+      if(p.getElementsByTagNameNS('*','b').length) el.className += ' forte';
+      var jc = p.getElementsByTagNameNS('*','jc')[0];
+      if(jc && (jc.getAttribute('w:val') === 'center' || jc.getAttribute('val') === 'center')) el.className += ' centro';
+      var pedacos = txt.split(/(«[A-Z0-9_À-ÿ]+»)/);
+      pedacos.forEach(function(pd){
+        if(/^«.+»$/.test(pd)){
+          var s = document.createElement('span');
+          s.className = 'pendente'; s.textContent = pd;
+          el.appendChild(s);
+        } else if(pd){
+          el.appendChild(document.createTextNode(pd));
+        }
+      });
+      papel.appendChild(el);
+    }
+  }
+  var timer = null;
+  function agenda(){
+    clearTimeout(timer);
+    timer = setTimeout(function(){ previa(); avisaFalta(); }, 140);
+  }
+  function avisaFalta(){
+    var faltando = chaves.filter(function(c){ return !valores[c]; });
+    $('falta').textContent = faltando.length
+      ? 'Ainda em branco: ' + faltando.map(rotuloDe).join(', ') + '.'
+      : '';
+  }
+
+  /* ---------- carregar ---------- */
+  $('arquivo').addEventListener('change', function(ev){
+    var file = ev.target.files && ev.target.files[0];
+    if(!file) return;
+    nomeOrig = file.name.replace(/\.docx$/i, '');
+    $('status').className = 'ok';
+    $('status').textContent = 'Lendo ' + file.name + '…';
+    var fr = new FileReader();
+    fr.onload = function(){
+      JSZip.loadAsync(fr.result).then(function(z){
+        zip = z;
+        var nomes = Object.keys(z.files).filter(function(nm){ return ALVOS.test(nm); });
+        if(!nomes.length) throw new Error('vazio');
+        return Promise.all(nomes.map(function(nm){
+          return z.file(nm).async('string').then(function(x){ return { path:nm, xml:x }; });
+        }));
+      }).then(function(lista){
+        partes = lista;
+        chaves = coletaChaves();
+        valores = {};
+        if(!chaves.length){
+          $('status').className = 'ok erro';
+          $('status').textContent = 'Li o arquivo, mas não achei nenhuma marca {{CAMPO}} nele. Veja abaixo como marcar.';
+          $('ajuda').style.display = 'block';
+          $('cardCampos').style.display = 'none';
+          $('cardExporta').style.display = 'none';
+          previa();
+          return;
+        }
+        $('status').className = 'ok';
+        $('status').textContent = 'Modelo carregado: ' + chaves.length + ' campo(s).';
+        montaCampos();
+        $('cardCampos').style.display = '';
+        $('cardExporta').style.display = '';
+        previa(); avisaFalta();
+      }).catch(function(err){
+        $('status').className = 'ok erro';
+        $('status').textContent = 'Não consegui ler esse arquivo. Ele precisa ser um .docx do Word (não .doc, não PDF).';
+        zip = null; partes = []; chaves = [];
+        $('cardCampos').style.display = 'none';
+        $('cardExporta').style.display = 'none';
+      });
+    };
+    fr.onerror = function(){
+      $('status').className = 'ok erro';
+      $('status').textContent = 'Falha ao abrir o arquivo.';
+    };
+    fr.readAsArrayBuffer(file);
+  });
+
+  /* ---------- exportar ---------- */
+  function limpaNome(s){
+    return String(s||'').replace(/[\\\/:*?"<>|]/g,'').replace(/\s+/g,' ').trim();
+  }
+  $('btnDocx').addEventListener('click', function(){
+    if(!zip) return;
+    partes.forEach(function(p){ zip.file(p.path, processa(p.xml, resolvedorFinal)); });
+    zip.generateAsync({
+      type:'blob',
+      mimeType:'application/vnd.openxmlformats-officedocument.wordprocessingml.document',
+      compression:'DEFLATE'
+    }).then(function(blob){
+      var quem = limpaNome(valores.RAZAO_SOCIAL || valores.CLIENTE || valores.CONTRATANTE || valores.NOME || '');
+      var n = limpaNome(valores.NUMERO || valores.CONTRATO || '');
+      var nome = ['Contrato', quem, n].filter(Boolean).join(' - ') || nomeOrig || 'contrato';
+      var url = URL.createObjectURL(blob);
+      var a = document.createElement('a');
+      a.href = url; a.download = nome + '.docx';
+      document.body.appendChild(a); a.click(); a.remove();
+      setTimeout(function(){ URL.revokeObjectURL(url); }, 2000);
+      $('status').className = 'ok';
+      $('status').textContent = 'Baixado: ' + nome + '.docx';
+    });
+  });
+  $('btnPdf').addEventListener('click', function(){ window.print(); });
+
+  /* ---------- ajuda ---------- */
+  $('btnAjuda').addEventListener('click', function(){
+    var a = $('ajuda');
+    a.style.display = (a.style.display === 'none' || !a.style.display) ? 'block' : 'none';
+  });
+  (function(){
+    var box = $('sugestoes');
+    SUGESTOES.forEach(function(c){
+      var b = document.createElement('button');
+      b.type = 'button'; b.className = 'marca'; b.textContent = '{{' + c + '}}';
+      b.title = rotuloDe(c) + ' — clique para copiar';
+      b.addEventListener('click', function(){
+        try { navigator.clipboard.writeText('{{' + c + '}}'); } catch(e){}
+        b.textContent = 'copiado!';
+        setTimeout(function(){ b.textContent = '{{' + c + '}}'; }, 900);
+      });
+      box.appendChild(b);
+    });
+  })();
+  $('btnCopiar').addEventListener('click', function(){
+    var txt = SUGESTOES.map(function(c){ return '{{' + c + '}}\t' + rotuloDe(c); }).join('\n');
+    try { navigator.clipboard.writeText(txt); } catch(e){}
+    $('btnCopiar').textContent = 'Lista copiada';
+    setTimeout(function(){ $('btnCopiar').textContent = 'Copiar a lista de marcas'; }, 1200);
+  });
+
+  document.addEventListener('input', function(ev){
+    if(ev.target && ev.target.id && ev.target.id.indexOf('f-') === 0) ev.target.dataset.tocado = '1';
+  }, true);
+})();
+</script>
+</body>
+</html>

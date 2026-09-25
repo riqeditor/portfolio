@@ -67,6 +67,15 @@
   .pac:hover{border-color:var(--accent-soft)}
   .pac.on{background:rgba(254,12,112,.14); border-color:var(--accent)}
 
+  .campo-botao{ display:flex; gap:6px; align-items:flex-start; }
+  .campo-botao input{ flex:1; }
+  .mini{
+    background:var(--bg-input); border:1px solid var(--border-soft); color:var(--accent);
+    border-radius:9px; padding:9px 12px; font-family:var(--font-body); font-size:.78rem;
+    font-weight:600; cursor:pointer; white-space:nowrap; line-height:1.2;
+  }
+  .mini:hover{ border-color:var(--accent); background:rgba(254,12,112,.1); }
+
   /* lista de blocos */
   .blocos{ list-style:none; margin:0; padding:0; }
   .blocos li{
@@ -175,7 +184,12 @@
     <div class="card">
       <h2>Cabeçalho</h2>
       <div class="row2">
-        <div><label>Nº</label><input id="numero" value="2026-001"></div>
+        <div><label>Nº da proposta</label>
+          <div class="campo-botao">
+            <input id="numero" placeholder="VK09831">
+            <button type="button" class="mini" id="btnNumero" title="Gerar o próximo número">gerar</button>
+          </div>
+        </div>
         <div><label>Data</label><input id="data" type="date"></div>
       </div>
       <div class="row2">
@@ -200,11 +214,11 @@
       <label>Objetivo <span class="hint">o briefing dá três palavras; aqui vira uma frase</span></label>
       <input id="objetivo" placeholder="O que esse vídeo precisa fazer">
 
-      <label>Escopo</label>
+      <label>Escopo <span class="hint">clique nas etiquetas para incluir ou tirar</span></label>
       <textarea id="escopo" placeholder="uma linha por item"></textarea>
       <div class="chips" id="chips-escopo"></div>
 
-      <label>Entregáveis</label>
+      <label>Entregáveis <span class="hint">clique nas etiquetas para incluir ou tirar</span></label>
       <textarea id="entregaveis" placeholder="uma linha por item"></textarea>
       <div class="chips" id="chips-entregaveis"></div>
     </div>
@@ -232,7 +246,7 @@
       <header class="ph">
         <div class="brand">RIQ<small>Edição de vídeo · Motion design</small></div>
         <div class="meta">
-          Proposta <b id="p-num">2026-001</b><br>
+          Proposta <b id="p-num">—</b><br>
           <span id="p-data"></span><br>
           Válida até <b id="p-validade"></b>
         </div>
@@ -340,10 +354,15 @@
     $(campo).value = atuais.join('\n');
     render();
   }
+  function etiquetasDe(campo){
+    var base = ETIQUETAS[campo].slice();
+    linhas($(campo).value).forEach(function(t){ if(base.indexOf(t) === -1) base.push(t); });
+    return base;
+  }
   function montaEtiquetas(campo){
     var box = $('chips-' + campo);
     box.innerHTML = '';
-    ETIQUETAS[campo].forEach(function(t){
+    etiquetasDe(campo).forEach(function(t){
       var b = document.createElement('button');
       b.type = 'button'; b.className = 'chip'; b.textContent = t;
       b.addEventListener('click', function(){ alterna(campo, t); });
@@ -354,6 +373,10 @@
     Object.keys(ETIQUETAS).forEach(function(campo){
       var atuais = linhas($(campo).value);
       var botoes = $('chips-' + campo).children;
+      var conhecidos = [];
+      for(var j=0;j<botoes.length;j++) conhecidos.push(botoes[j].textContent);
+      var falta = atuais.some(function(t){ return conhecidos.indexOf(t) === -1; });
+      if(falta){ montaEtiquetas(campo); botoes = $('chips-' + campo).children; }
       for(var i=0;i<botoes.length;i++){
         botoes[i].classList.toggle('on', atuais.indexOf(botoes[i].textContent) !== -1);
       }
@@ -386,7 +409,7 @@
     var bs = $('pacotes').children;
     for(var i=0;i<bs.length;i++) bs[i].classList.toggle('on', bs[i].dataset.id === p.id);
     render();
-    $('status').textContent = 'Pacote "' + p.nome + '" aplicado. Ajuste o que for específico deste cliente.';
+    $('status').textContent = 'Pacote "' + p.nome + '" aplicado. Clique nas etiquetas de escopo e entregáveis para tirar o que não entra neste cliente.';
   }
 
   /* ---------- papel ---------- */
@@ -549,6 +572,32 @@
   }
 
   $('quantidade').addEventListener('change', function(){ sincronizaQtd(); render(); });
+  /* ---------- número da proposta ---------- */
+  var PREFIXO = 'VK';
+  var CHAVE_SEQ = 'riq-proposta-seq';
+  var SEMENTE = 9830;                 // primeiro clique gera VK09831
+
+  function leSeq(){
+    var n = 0;
+    try { n = parseInt(localStorage.getItem(CHAVE_SEQ), 10) || 0; } catch(e) {}
+    var m = String($('numero').value || '').match(/^VK(\d{3,6})$/i);
+    if(m){
+      var doCampo = parseInt(m[1], 10);
+      if(doCampo > n) n = doCampo;    // o campo manda: conserta aparelho novo
+    }
+    return n || SEMENTE;
+  }
+  function gravaSeq(n){
+    try { localStorage.setItem(CHAVE_SEQ, String(n)); } catch(e) {}
+  }
+  function geraNumero(){
+    var prox = leSeq() + 1;
+    $('numero').value = PREFIXO + String(prox).padStart(5, '0');
+    gravaSeq(prox);
+    render();
+    $('status').textContent = 'Número gerado. O próximo será ' + PREFIXO + String(prox + 1).padStart(5, '0') + '.';
+  }
+
   /* ---------- blocos movíveis ---------- */
   var BLOCOS = [
     ['objetivo','Objetivo'], ['projeto','O projeto'], ['escopo','Escopo'],
@@ -657,6 +706,8 @@
     layout.sort(function(a, b){ return ordem.indexOf(a.id) - ordem.indexOf(b.id); });
     salvarLayout(); montaLista(); aplicaLayout();
   }
+
+  $('btnNumero').addEventListener('click', geraNumero);
 
   $('btnResetBlocos').addEventListener('click', function(){
     layout = BLOCOS.map(function(b){ return { id: b[0], visivel: true }; });
